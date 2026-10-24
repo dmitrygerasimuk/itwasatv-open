@@ -1,4 +1,5 @@
 export const config = Object.freeze({
+  version: '0.1.4',
   maxChannel: 20,
   syncTolerance: 4,
   clockRefreshMs: 15 * 60 * 1000,

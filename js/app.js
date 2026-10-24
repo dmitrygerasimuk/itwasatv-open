@@ -41,16 +41,17 @@ function dismissMessage(toast) {
   clearTimeout(toastTimers.get(toast));
   toast.remove();
 }
-function clearMessages() { all('#notifications .status-toast').forEach(dismissMessage); }
-function message(text, duration = 5000) {
+function clearMessages() { all('.status-notifications .status-toast').forEach(dismissMessage); }
+function message(text, duration = 5000, position = 'left') {
+  const container = $(position === 'right' ? 'notifications-right' : 'notifications');
   const toast = document.createElement('button');
   toast.type = 'button';
   toast.className = 'status-toast';
   toast.textContent = text;
   toast.title = 'Click to dismiss';
   toast.addEventListener('click', () => dismissMessage(toast));
-  $('notifications').appendChild(toast);
-  while ($('notifications').children.length > 3) dismissMessage($('notifications').firstElementChild);
+  container.appendChild(toast);
+  while (container.children.length > 3) dismissMessage(container.firstElementChild);
   toastTimers.set(toast, setTimeout(() => dismissMessage(toast), duration));
 }
 function hideTooltips() {
@@ -320,7 +321,7 @@ function createPlayer() {
     width: '100%', height: '100%',
     playerVars: {
       autoplay: 0, controls: 0, playsinline: 1, disablekb: 1, rel: 0,
-      iv_load_policy: 3, cc_load_policy: 0, origin: location.origin
+      iv_load_policy: 3, cc_load_policy: 0, enablejsapi: 1, origin: location.origin
     },
     events: {
       onReady(event) {
@@ -400,7 +401,10 @@ function loadYouTube() {
   }, 20000);
 }
 function status() {
-  message(`Channel ${app.channel + 1} · ${app.schedule?.videos.length ?? 0} videos · Time: ${clock.source}${clock.synchronized ? '' : ' (external time unavailable)'}${app.direct ? ' · selected song' : ''}`, 10000);
+  const seconds = app.videos.reduce((total, video) => total + video.time, 0);
+  const duration = [Math.floor(seconds / 3600), Math.floor(seconds / 60) % 60, seconds % 60]
+    .map(value => String(value).padStart(2, '0')).join(':');
+  message(`Version: ${config.version}\nTotal videos: ${app.videos.length} / total time: ${duration}\nLast added: ${app.videos.at(-1)?.title ?? '—'}`, 15000, 'right');
 }
 function about() { $('it-aboutPicture').style.backgroundImage = "url('./images/tv1200bw.jpg')"; }
 // Small compatibility surface for the unchanged original HTML handlers.
@@ -490,11 +494,6 @@ async function init() {
   showMenu(false);
   about();
   UIkit.modal('#landing-modal').show();
-  if (window.ShuffleText && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const welcome = new ShuffleText($('itsatvWelcome').querySelector('b'));
-    welcome.duration = 550;
-    welcome.start();
-  }
   try {
     const [videos, availability] = await Promise.all([
       fetch('./data/videos.json').then(r => { if (!r.ok) throw new Error('Catalog unavailable'); return r.json(); }),

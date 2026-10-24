@@ -3,14 +3,23 @@
 #credcenter { transition: opacity .8s linear; }
 #video-foreground { transition: opacity 1s linear; }
 #left-hover { pointer-events: none; }
+#left-hover,
+.vid-info,
+.vid-info a,
+.cred-info p { color: #eee; }
 #left-hover p { color: inherit; }
+#left-hover .uk-h3 { color: #fff; }
+#links-show > a { margin: 1.8rem auto; }
+.video-black-ui .vid-info,
 .video-black-ui .vid-info a,
 .video-black-ui .cred-info,
+.video-black-ui .cred-info p,
 .video-black-ui .credcenter,
 .video-black-ui .credcenteryear,
 .video-black-ui #left-hover,
 .video-black-ui #ajaxLineup { color: #111; }
 .video-black-ui #ajaxLineup a { color: #111; }
+.video-black-ui #left-hover .uk-h3 { color: #000; }
 #ajaxLineup { color: #eee; }
 #ajaxLineup a { color: inherit; }
 #ajaxLineup tbody th { max-width: 30vw; }
@@ -35,6 +44,7 @@
   z-index: 99999;
   pointer-events: none;
 }
+.status-notifications-right { left: auto; right: 16px; }
 .status-toast {
   display: block;
   width: fit-content;
@@ -49,6 +59,7 @@
   font-size: 14px;
   line-height: 1.4;
   text-align: left;
+  white-space: pre-line;
   cursor: pointer;
   pointer-events: auto;
 }
