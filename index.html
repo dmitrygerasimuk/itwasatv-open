@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="./libs/uikit/3.0.0-rc19/uikit.min.css">
   <link rel="stylesheet" href="./itsatv.css">
   <link rel="stylesheet" href="./standalone.css">
+  <script>window.FontAwesomeConfig = { autoReplaceSvg: "nest" };</script>
   <script defer src="./libs/fontawesome-5.0.13-all.js"></script>
   <script defer src="./libs/uikit/3.0.0-rc19/uikit.min.js"></script>
   <script defer src="./libs/uikit/3.0.0-rc19/uikit-icons.min.js"></script>
@@ -168,10 +169,7 @@ viewBox="20 0 407.000000 122.000000" preserveAspectRatio="xMidYMid meet">
             <i class="fas fa-circle-notch fa-1x fa-spin"></i></p>
 
       </div>
-      <div class="userplay">
 
-        <a id="userplay" data-original-id="userplay" href="#"> </a>
-      </div>
     </div>
   </div>
 
@@ -218,16 +216,12 @@ viewBox="20 0 407.000000 122.000000" preserveAspectRatio="xMidYMid meet">
       </div>
       </div>
     </div>
-    <div class="messagebox">
 
-      <p class="uk-text-small" style="opacity:0;" id="messagebox" data-original-id="messagebox"></p>
-
-    </div>
 
     <div id="parent" data-original-id="parent" >
 
       <div id="lineupdiv" data-original-id="lineupdiv">
-        <div id="lineup" data-original-id="lineup" class=" uk-modal-full" style="z-index:1010; background-color:rgba(0,0,0,0.0);" uk-modal>
+        <div id="lineup" data-original-id="lineup" class=" uk-modal-full" style="z-index:5; background-color:rgba(0,0,0,0.0);" uk-modal>
           <div class="uk-modal-dialog uk-modal-body uk-light" style="color:#fff; background-color:rgba(0,0,0,0.0);">
             <button class="uk-modal-close-default" type="button" uk-close></button>
             <div class="uk-margin-medium-top uk-visible@m">
@@ -355,7 +349,7 @@ viewBox="20 0 407.000000 122.000000" preserveAspectRatio="xMidYMid meet">
 
     <div class="cred-info "  >
 
-      <p style="z-index:10;" class=" uk-position-medium uk-position-bottom-left findSongActivity uk-transition-toggle uk-link-heading uk-light" id="cred" data-original-id="cred"  tabindex="0"></p>
+      <p style="z-index:10;" class=" uk-position-medium uk-position-bottom-left uk-transition-toggle uk-link-heading uk-light" id="cred" data-original-id="cred"  tabindex="0"></p>
 
       <p id="debug" data-original-id="debug"> </p>
         <p style="opacity:0; font-size: 10px;" id="itsatv-hdIcon" data-original-id="itsatv-hdIcon"> </p>
@@ -402,10 +396,6 @@ viewBox="20 0 407.000000 122.000000" preserveAspectRatio="xMidYMid meet">
    <a href="#lineup" uk-toggle>lineup</a>  <br>
 
            <a class="uk-link-heading" id="statuslink" data-original-id="statuslink" href="javascript:void(0);">status</a> <br>
-
- <a class="uk-link-heading" id="titleslink" data-original-id="titleslink" href="javascript:void(0);" style="display:none;" >titles</a>
-  <a class="uk-link-heading" style=" display:none;" id="debuglink" data-original-id="debuglink" href="javascript:void(0);"  >dbg:on</a>
-  <a class="uk-link-heading" style="display:none; " id="blackandwhitelink" data-original-id="blackandwhitelink" href="javascript:void(0);">black and white</a>
   <a class="uk-link-heading" id="synclink" data-original-id="synclink" href="javascript:void(0);">sync
 
 </a>  <br>
@@ -570,5 +560,6 @@ viewBox="20 0 407.000000 122.000000" preserveAspectRatio="xMidYMid meet">
  </div>
 </div>
 <noscript><p class="uk-position-center">Please enable JavaScript to watch ITSATV.</p></noscript>
+<div id="notifications" class="status-notifications" aria-live="polite" aria-relevant="additions"></div>
 </body>
 </html>

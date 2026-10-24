@@ -1,6 +1,7 @@
 import { config } from './config.js';
-import { Schedule, channelNames, modulo } from './schedule.js';
+import { Schedule, channelNames } from './schedule.js';
 import { SyncedClock } from './clock.js';
+import { UpcomingNotice } from './ui-state.js';
 
 const $ = id => document.getElementById(id);
 const all = selector => [...document.querySelectorAll(selector)];
@@ -18,29 +19,55 @@ const storage = {
 };
 const params = new URLSearchParams(location.search);
 const requestedChannel = Number(params.get('channel') ?? storage.get('channel', 0));
-const initialChannel = Number.isInteger(requestedChannel) && requestedChannel >= 0 && requestedChannel <= 6000 ? requestedChannel : 0;
+const initialChannel = Number.isInteger(requestedChannel) && requestedChannel >= 0 && requestedChannel <= config.maxChannel ? requestedChannel : 0;
 const clock = new SyncedClock(config.timeSources, config.clockTimeoutMs);
 const app = {
   channel: initialChannel, schedule: null, videos: [], player: null,
   ready: false, started: false, paused: false, muted: false, current: null,
-  loadedId: null, loadedAt: 0, loadedSlot: null, state: -1, menu: false,
+  loadedAt: 0, loadedSlot: null, state: -1, menu: false,
   volume: Math.max(0, Math.min(100, Number(storage.get('volume', 80)) || 0)),
   options: storage.get('options', {}), favorites: storage.get('favorites', []),
-  skippedSlot: null, blocked: false, direct: null, searchToken: 0,
-  manualCredits: false, searching: false, titleTimer: null, lineupKey: '',
+  skippedSlot: null, blocked: false, direct: null,
+  manualCredits: false, lineupKey: '', videoVisible: false, revealTimer: null,
   apiLoading: false, apiTimeout: null, loading: false
 };
 if (!app.options || typeof app.options !== 'object' || Array.isArray(app.options)) app.options = {};
 if (!Array.isArray(app.favorites)) app.favorites = [];
 app.options = { itShowStatus: true, itForceBW: false, itRedHighlight: true, itShowUpcoming: true, ...app.options };
 
+const upcomingNotice = new UpcomingNotice();
+const toastTimers = new WeakMap();
+function dismissMessage(toast) {
+  clearTimeout(toastTimers.get(toast));
+  toast.remove();
+}
+function clearMessages() { all('#notifications .status-toast').forEach(dismissMessage); }
 function message(text, duration = 5000) {
-  const box = $('messagebox');
-  box.textContent = text;
-  box.style.opacity = '1';
-  box.style.zIndex = '110';
-  clearTimeout(message.timer);
-  message.timer = setTimeout(() => { box.style.opacity = '0'; }, duration);
+  const toast = document.createElement('button');
+  toast.type = 'button';
+  toast.className = 'status-toast';
+  toast.textContent = text;
+  toast.title = 'Click to dismiss';
+  toast.addEventListener('click', () => dismissMessage(toast));
+  $('notifications').appendChild(toast);
+  while ($('notifications').children.length > 3) dismissMessage($('notifications').firstElementChild);
+  toastTimers.set(toast, setTimeout(() => dismissMessage(toast), duration));
+}
+function hideTooltips() {
+  all('[uk-tooltip]').forEach(el => UIkit.getComponent(el, 'tooltip')?.hide());
+}
+function syncPanels(event) {
+  if (event && !event.target.matches('.uk-modal, .uk-offcanvas')) return;
+  document.body.classList.toggle('panel-open', !!document.querySelector('.uk-modal.uk-open, .uk-offcanvas.uk-open'));
+  hideTooltips();
+}
+function prepareVideo() {
+  clearTimeout(app.revealTimer);
+  app.videoVisible = false;
+  app.loading = true;
+  app.loadedAt = performance.now();
+  spinner(true);
+  updateOverlays();
 }
 function spinner(show) {
   $('debug2').style.display = show ? '' : 'none';
@@ -74,14 +101,16 @@ function changeVolume(value) {
 }
 function mute() { app.muted = !app.muted; updateVolume(); }
 function start() {
+  clearMessages();
+  hideTooltips();
   app.started = true;
   app.paused = false;
   app.blocked = false;
   UIkit.modal('#landing-modal').hide();
   showMenu(true);
   if (app.ready && app.schedule) {
+    // loadVideoById already starts playback. A second playVideo call flashes YouTube's central feedback UI.
     tune(true);
-    app.player.playVideo();
   } else {
     spinner(true);
     loadYouTube();
@@ -91,7 +120,10 @@ function start() {
 function pause() {
   if (!app.ready) return;
   app.paused = true;
+  clearTimeout(app.revealTimer);
+  app.videoVisible = false;
   app.player.pauseVideo();
+  updateOverlays();
 }
 function togglePlay() { if (!app.started || app.paused || app.blocked) start(); else pause(); }
 function syncNow() {
@@ -101,15 +133,14 @@ function syncNow() {
 }
 function changeChannel(channel = app.channel + 1) {
   app.channel = Number(channel);
-  if (!Number.isInteger(app.channel) || app.channel < 0 || app.channel > 6000) app.channel = 0;
+  if (!Number.isInteger(app.channel) || app.channel < 0 || app.channel > config.maxChannel) app.channel = 0;
   app.direct = null;
   app.skippedSlot = null;
   app.blocked = false;
-  app.searchToken++;
+  clearMessages();
   storage.set('channel', app.channel);
   const url = new URL(location.href);
   url.searchParams.set('channel', app.channel);
-  url.searchParams.delete('findid');
   history.replaceState(null, '', url);
   tune(true);
   message(`Channel is ${app.channel + 1}${channelNames[app.channel] ? ' — ' + channelNames[app.channel] : ''}`);
@@ -144,11 +175,8 @@ function tune(force = false) {
   if (!app.ready || app.paused || app.blocked) return;
   if (app.skippedSlot === key && !force) return;
   if (force || app.loadedSlot !== key) {
-    app.loadedId = current.id;
     app.loadedSlot = key;
-    app.loadedAt = performance.now();
-    app.loading = true;
-    spinner(true);
+    prepareVideo();
     const video = { videoId: current.id, startSeconds: Math.max(0, current.offset) };
     if (app.started) app.player.loadVideoById(video); else app.player.cueVideoById(video);
   }
@@ -183,7 +211,7 @@ function renderLineup(force = false) {
   if (!app.schedule) return;
   const now = clock.now();
   const middle = Math.max(1, Math.min(config.maxChannel - 1, app.channel));
-  const channels = app.channel > config.maxChannel ? [app.channel - 1, app.channel, app.channel + 1] : [middle - 1, middle, middle + 1];
+  const channels = [middle - 1, middle, middle + 1];
   const positions = channels.map(ch => app.schedule.current(ch, now));
   const key = `${app.channel}:${positions.map(p => p.id + p.index).join(':')}:${app.options.itRedHighlight}`;
   if (!force && key === app.lineupKey) return;
@@ -222,44 +250,31 @@ function renderSearch() {
   const results = query ? app.videos.filter(v => v.title.toLocaleLowerCase().includes(query)) : [];
   $('search-results').innerHTML = results.slice(0, 80).map(v => `<a class="search-result" role="option" href="#" data-song="${v.id}">${escape(v.title)}${v.year ? ` <span class="uk-text-muted">[${v.year}]</span>` : ''}</a>`).join('') || (query ? '<p>No songs found.</p>' : '');
 }
-async function findSong(id) {
+function selectVideo(id) {
   const video = app.videos.find(v => v.id === id);
   if (!video || !app.schedule) return;
   if (!app.schedule.videos.some(v => v.id === id)) { message('This video is unavailable for embedding.'); return; }
-  const token = ++app.searchToken;
-  app.searching = true;
-  message('Searching channels #1–6001…', 30000);
   UIkit.modal('#search-modal').hide();
   UIkit.modal('#favs-modal').hide();
-  // Match a station broadcasting this song now; yield between chunks to keep UI responsive.
-  for (let ch = 0; ch <= 6000; ch++) {
-    if (token !== app.searchToken) { app.searching = false; return; }
-    if (app.schedule.current(ch, clock.now()).id === id) {
-      app.searching = false;
-      changeChannel(ch);
-      start();
-      return;
-    }
-    if (ch % 40 === 39) await new Promise(resolve => setTimeout(resolve, 0));
-  }
-  app.searching = false;
-  // A rare short clip may not have a matching station: play once, then resume live TV.
   app.direct = { ...video, start: clock.now() };
   start();
   message('Playing selected song. Live television resumes afterwards.');
 }
+
 function updateOverlays() {
   if (!app.current) return;
-  const playing = app.started && !app.paused && app.state === 1;
+  const playing = app.started && !app.paused && !app.blocked && app.videoVisible && app.state === 1;
   const v = app.current;
   const showTitles = playing && v.titles !== false && v.offset >= 5 && v.offset < 20;
   $('credcenter').style.opacity = showTitles ? '1' : '0';
   const showCredits = playing && v.hover !== false && (app.manualCredits || v.time - v.offset < Math.max(0, 25 + Number(v.hoverDelay ?? -5)));
   $('left-hover').hidden = !showCredits;
-  const curtain = !app.started || app.paused || app.blocked || (app.loading && app.state !== 1);
+  const curtain = !app.started || app.paused || app.blocked || !app.videoVisible;
   document.querySelector('.toggleplayer').style.display = curtain ? '' : 'none';
-  $('userplay').textContent = app.paused ? 'PLAY' : '';
-  const upcoming = app.options.itShowUpcoming && app.started && v.upcoming && !app.paused;
+  const upcoming = !!v.upcoming && upcomingNotice.visible({
+    slot: slotKey(v), remaining: v.time - v.offset, playing,
+    enabled: app.options.itShowUpcoming, now: performance.now()
+  });
   $('itsatv-hdIcon').textContent = upcoming ? `Upcoming: ${v.upcoming.title}` : '';
   $('itsatv-hdIcon').style.opacity = upcoming ? '1' : '0';
   const small = params.has('smallui') || params.has('smallUI') || innerHeight < 360;
@@ -305,9 +320,7 @@ function playerError(event) {
     const next = app.current.upcoming;
     message('This video cannot be played here. Showing the next clip until the live schedule resumes.', 10000);
     if (next) {
-      app.loadedId = next.id;
-      app.loading = true;
-      app.loadedAt = performance.now();
+      prepareVideo();
       app.player.loadVideoById(next.id, 0);
     }
   } else {
@@ -332,20 +345,44 @@ function createPlayer() {
         app.ready = true;
         event.target.getIframe().setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
         event.target.getIframe().setAttribute('allow', 'autoplay; encrypted-media; fullscreen; picture-in-picture');
+        event.target.getIframe().setAttribute('tabindex', '-1');
         updateVolume();
         tune(true);
-        if (app.started) event.target.playVideo();
         spinner(false);
       },
       onStateChange(event) {
         app.state = event.data;
-        if (event.data === 1) { app.loading = false; app.blocked = false; spinner(false); }
-        if (event.data === 3) spinner(true);
+        if (event.data === 1) {
+          app.loading = false;
+          app.blocked = false;
+          spinner(false);
+          event.target.getIframe().blur();
+          if (!app.videoVisible) {
+            // Keep the original opaque station curtain over the brief YouTube play/pause feedback.
+            clearTimeout(app.revealTimer);
+            app.revealTimer = setTimeout(() => {
+              if (app.state === 1 && !app.paused && !app.blocked) {
+                app.videoVisible = true;
+                updateOverlays();
+              }
+            }, 1000);
+          }
+        }
+        if (event.data === 3) {
+          app.videoVisible = false;
+          clearTimeout(app.revealTimer);
+          spinner(true);
+        }
         if (event.data === 2 && app.started && !app.loading && !app.paused) {
           // The browser or user may pause the embedded media independently.
           app.paused = true;
+          app.videoVisible = false;
+          clearTimeout(app.revealTimer);
         }
         if (event.data === 0 && app.started && !app.paused) {
+          app.videoVisible = false;
+          clearTimeout(app.revealTimer);
+          spinner(false);
           // Never reload an ended clip in a loop when catalog duration is too long.
           app.skippedSlot = app.current && slotKey(app.current);
           message('Waiting for the next scheduled clip…');
@@ -362,7 +399,6 @@ function createPlayer() {
       }
     }
   });
-  window.player = app.player;
 }
 function loadYouTube() {
   if (window.YT?.Player) {
@@ -404,26 +440,22 @@ function about() { $('it-aboutPicture').style.backgroundImage = "url('./images/t
 Object.assign(window, {
   it: { changeVolume },
   itsatv: { changeAboutBox: about },
-  itsatvPlayer: { landing: { play: start, unMute() { app.muted = false; updateVolume(); start(); } }, likesonly: false },
-  ChangeChannel: nextChannel, ReloadChannel: syncNow, takemetoChannel: changeChannel,
-  showMenu, AddFaves: () => toggleFavorite(), ShowFavs: showFavorites,
-  callfindSong: findSong, callfindSongName(title) { const v = app.videos.find(v => v.title === title); if (v) findSong(v.id); }
+  itsatvPlayer: { landing: { play: start, unMute() { app.muted = false; updateVolume(); start(); } } },
+  ChangeChannel: nextChannel, showMenu
 });
 
 function bind() {
-  const action = (id, fn) => all(`[data-original-id="${id}"]`).forEach(el => el.addEventListener('click', event => { event.preventDefault(); fn(); }));
+  const action = (id, fn) => all(`[data-original-id="${id}"]`).forEach(el => el.addEventListener('click', event => { event.preventDefault(); hideTooltips(); fn(); el.blur(); }));
   action('mutelink', mute);
   action('fulllink', fullscreen);
   action('nextlink', nextChannel);
   action('hidelink', () => showMenu(false));
   action('menu', () => showMenu());
   action('play2link', start);
-  action('userplay', start);
   action('playlink', start);
   action('stoplink', pause);
   action('synclink', () => { clock.sync().then(syncNow); });
   action('statuslink', status);
-  action('titleslink', showCredits);
   action('itsatvSmallUI-Back', previousChannel);
   action('itsatvSmallUI-Next', nextChannel);
   action('itsatvSmallUI-Play', togglePlay);
@@ -433,7 +465,7 @@ function bind() {
     event.preventDefault();
     const query = $('myInput').value.trim().toLocaleLowerCase();
     const v = app.videos.find(v => v.title.toLocaleLowerCase().includes(query));
-    if (v && query) findSong(v.id);
+    if (v && query) selectVideo(v.id);
   });
   $('myInput').addEventListener('input', renderSearch);
   $('myInput').setAttribute('aria-label', 'Search songs');
@@ -452,7 +484,7 @@ function bind() {
     if (!target) return;
     event.preventDefault();
     if (target.hasAttribute('data-channel')) changeChannel(Number(target.dataset.channel));
-    if (target.dataset.song) findSong(target.dataset.song);
+    if (target.dataset.song) selectVideo(target.dataset.song);
     if (target.dataset.favorite) toggleFavorite(target.dataset.favorite);
     if (target.hasAttribute('data-show-favorites')) showFavorites();
     if (target.hasAttribute('data-show-credits')) showCredits();
@@ -471,7 +503,15 @@ function bind() {
     };
     if (handlers[key]) { event.preventDefault(); handlers[key](); }
   });
-  addEventListener('resize', updateOverlays);
+  // UIkit mounts tooltips in body. Clear them before panels open, including keyboard triggers.
+  document.addEventListener('click', hideTooltips, true);
+  document.addEventListener('beforeshow', event => {
+    if (!event.target.matches('.uk-modal, .uk-offcanvas')) return;
+    document.body.classList.add('panel-open');
+    hideTooltips();
+  }, true);
+  for (const event of ['shown', 'hidden']) document.addEventListener(event, syncPanels, true);
+    addEventListener('resize', updateOverlays);
   let lastVisible = performance.now();
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { lastVisible = performance.now(); return; }
@@ -505,7 +545,6 @@ async function init() {
     setInterval(() => clock.sync().then(() => tune()), config.clockRefreshMs);
     spinner(false);
     if (app.options.itShowStatus) status();
-    if (params.get('findid')) await findSong(params.get('findid'));
   } catch {
     spinner(false);
     message('Cannot load the video catalog. Serve this folder over HTTP(S) and reload the page.', 60000);

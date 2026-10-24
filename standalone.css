@@ -1,6 +1,6 @@
 /* The original itsatv.css is deliberately retained, including the oversized
    video-foreground/iframe rules and both responsive crop breakpoints. */
-#credcenter, #messagebox { transition: opacity .8s ease; }
+#credcenter { transition: opacity .8s ease; }
 #left-hover { pointer-events: none; }
 #left-hover button { pointer-events: auto; }
 #left-hover p { color: inherit; }
@@ -18,8 +18,40 @@
 #search-results { max-height: 48vh; overflow-y: auto; }
 .search-result { display: block; padding: 10px; color: #eee; }
 .search-result:hover, .search-result:focus { background: #ffffff15; color: white; }
-#userplay { color: #eee; }
 [hidden] { display: none !important; }
 @media (max-width: 640px) {
   #ajaxLineup tbody th { max-width: none; white-space: normal; }
 }
+
+/* These values restore the original layering: lineup 5, station controls 99,
+   offcanvas/full dialogs 1000+. Tooltips never intercept a control. */
+.uk-tooltip { pointer-events: none; z-index: 98; }
+.panel-open .uk-tooltip { display: none !important; }
+.status-notifications {
+  position: fixed;
+  top: 2%;
+  left: 16px;
+  max-width: min(440px, calc(100vw - 32px));
+  z-index: 99999;
+  pointer-events: none;
+}
+.status-toast {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 1rem 0 0;
+  padding: 1rem;
+  border: 0;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, .774);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.status-toast:focus-visible { outline: 1px solid #eee; outline-offset: 2px; }
+/* Keep the genre + channel label a single hit area across its line break. */
+#ajaxLineup thead a { display: inline-block; }
