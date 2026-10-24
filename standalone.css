@@ -1,8 +1,8 @@
 /* The original itsatv.css is deliberately retained, including the oversized
    video-foreground/iframe rules and both responsive crop breakpoints. */
-#credcenter { transition: opacity .8s ease; }
+#credcenter { transition: opacity .8s linear; }
+#video-foreground { transition: opacity 1s linear; }
 #left-hover { pointer-events: none; }
-#left-hover button { pointer-events: auto; }
 #left-hover p { color: inherit; }
 .video-black-ui .vid-info a,
 .video-black-ui .cred-info,

@@ -1,7 +1,7 @@
 import { config } from './config.js';
 import { Schedule, channelNames } from './schedule.js';
 import { SyncedClock } from './clock.js';
-import { UpcomingNotice } from './ui-state.js';
+import { UpcomingNotice, InitialTitles } from './ui-state.js';
 
 const $ = id => document.getElementById(id);
 const all = selector => [...document.querySelectorAll(selector)];
@@ -26,16 +26,16 @@ const app = {
   ready: false, started: false, paused: false, muted: false, current: null,
   loadedAt: 0, loadedSlot: null, state: -1, menu: false,
   volume: Math.max(0, Math.min(100, Number(storage.get('volume', 80)) || 0)),
-  options: storage.get('options', {}), favorites: storage.get('favorites', []),
+  options: storage.get('options', {}),
   skippedSlot: null, blocked: false, direct: null,
-  manualCredits: false, lineupKey: '', videoVisible: false, revealTimer: null,
+  manualCredits: false, lineupKey: '',
   apiLoading: false, apiTimeout: null, loading: false
 };
 if (!app.options || typeof app.options !== 'object' || Array.isArray(app.options)) app.options = {};
-if (!Array.isArray(app.favorites)) app.favorites = [];
 app.options = { itShowStatus: true, itForceBW: false, itRedHighlight: true, itShowUpcoming: true, ...app.options };
 
 const upcomingNotice = new UpcomingNotice();
+const initialTitles = new InitialTitles();
 const toastTimers = new WeakMap();
 function dismissMessage(toast) {
   clearTimeout(toastTimers.get(toast));
@@ -62,9 +62,8 @@ function syncPanels(event) {
   hideTooltips();
 }
 function prepareVideo() {
-  clearTimeout(app.revealTimer);
-  app.videoVisible = false;
   app.loading = true;
+  $('video-foreground').style.opacity = '0';
   app.loadedAt = performance.now();
   spinner(true);
   updateOverlays();
@@ -109,7 +108,7 @@ function start() {
   UIkit.modal('#landing-modal').hide();
   showMenu(true);
   if (app.ready && app.schedule) {
-    // loadVideoById already starts playback. A second playVideo call flashes YouTube's central feedback UI.
+    // loadVideoById already starts playback; do not request it twice.
     tune(true);
   } else {
     spinner(true);
@@ -120,8 +119,6 @@ function start() {
 function pause() {
   if (!app.ready) return;
   app.paused = true;
-  clearTimeout(app.revealTimer);
-  app.videoVisible = false;
   app.player.pauseVideo();
   updateOverlays();
 }
@@ -196,16 +193,13 @@ function renderTrack() {
         <li><a target="_blank" rel="noopener" href="https://song.link/https://www.youtube.com/watch?v=${v.id}"><i class="fab fa-apple fa-fw fa-lg"></i> Apple Music</a></li>
         <li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=${v.id}"><i class="fab fa-youtube fa-fw fa-lg"></i> Youtube</a></li>
         <li><a target="_blank" rel="noopener" href="https://music.yandex.ru/search?text=${query}"><i class="fab fa-yandex fa-fw fa-lg"></i> Yandex.Music</a></li>
-        <li><a href="#" data-favorite="${v.id}"><i class="fas fa-heart fa-fw fa-lg"></i> ${app.favorites.includes(v.id) ? 'Remove from favorites' : 'Add to favs'}</a></li>
-        <li><a href="#" data-show-favorites>Favorites</a></li>
         <li><a href="#" data-show-credits>Credits</a></li>
       </ul>
     </div>
     <span id="songtitle" class="uk-transition-fade ${v.title.length > 30 ? 'uk-text-small' : ''}">${escape(v.title)} ${v.year >= 1950 ? `[${v.year}]` : ''}</span>`;
-  $('likelogo').textContent = '';
   const rows = [['album', 'Album'], ['director', 'Director'], ['dop', 'Camera'], ['color', 'Colorist'], ['production', 'Production Company'], ['year', 'Year']];
   const metadata = rows.filter(([key]) => v[key]).map(([key, title]) => `${title}: ${escape(v[key])}<br>`).join('');
-  $('ajaxHover').innerHTML = `<div uk-grid><div class="uk-width-5-6"><p class="uk-margin-remove uk-text-uppercase uk-h3"><strong>${escape(v.title)}</strong></p><p class="uk-margin-remove">${metadata}${escape(v.additional || '').replace(/&lt;br\s*\/?&gt;/gi, '<br>')}</p><br><button class="uk-button uk-button-default uk-button-large" data-favorite="${v.id}"><i class="fas fa-plus"></i> ${app.favorites.includes(v.id) ? 'Remove from favs' : 'Add to favs'}</button></div></div>`;
+  $('ajaxHover').innerHTML = `<div uk-grid><div class="uk-width-5-6"><p class="uk-margin-remove uk-text-uppercase uk-h3"><strong>${escape(v.title)}</strong></p><p class="uk-margin-remove">${metadata}${escape(v.additional || '').replace(/&lt;br\s*\/?&gt;/gi, '<br>')}</p></div></div>`;
 }
 function renderLineup(force = false) {
   if (!app.schedule) return;
@@ -229,20 +223,6 @@ function renderLineup(force = false) {
     all('#ajaxLineup .shuffle').forEach(element => { const effect = new ShuffleText(element); effect.duration = 400; effect.start(); });
   }
 }
-function toggleFavorite(id = app.current?.id) {
-  if (!id) return;
-  app.favorites = app.favorites.includes(id) ? app.favorites.filter(item => item !== id) : [...app.favorites, id];
-  storage.set('favorites', app.favorites);
-  renderTrack();
-  renderFavorites();
-}
-function renderFavorites() {
-  $('favs-tab').innerHTML = app.favorites.length ? app.favorites.map(id => {
-    const v = app.videos.find(v => v.id === id);
-    return v ? `<tr><td><a href="#" data-song="${id}">${escape(v.title)}</a></td><td><button class="uk-close" uk-close data-favorite="${id}" aria-label="Remove favorite"></button></td></tr>` : '';
-  }).join('') : '<tr><td>No favorites yet.</td></tr>';
-}
-function showFavorites() { renderFavorites(); UIkit.modal('#favs-modal').show(); }
 function showCredits() { app.manualCredits = !app.manualCredits; updateOverlays(); }
 function showSearch() { UIkit.modal('#search-modal').show(); setTimeout(() => $('myInput').focus(), 50); renderSearch(); }
 function renderSearch() {
@@ -255,7 +235,6 @@ function selectVideo(id) {
   if (!video || !app.schedule) return;
   if (!app.schedule.videos.some(v => v.id === id)) { message('This video is unavailable for embedding.'); return; }
   UIkit.modal('#search-modal').hide();
-  UIkit.modal('#favs-modal').hide();
   app.direct = { ...video, start: clock.now() };
   start();
   message('Playing selected song. Live television resumes afterwards.');
@@ -263,13 +242,17 @@ function selectVideo(id) {
 
 function updateOverlays() {
   if (!app.current) return;
-  const playing = app.started && !app.paused && !app.blocked && app.videoVisible && app.state === 1;
+  const playing = app.started && !app.paused && !app.blocked && !app.loading && app.state === 1;
   const v = app.current;
-  const showTitles = playing && v.titles !== false && v.offset >= 5 && v.offset < 20;
+  const showTitles = initialTitles.visible({
+    slot: slotKey(v), offset: app.ready ? app.player.getCurrentTime() : v.offset,
+    playing, enabled: v.titles !== false, now: performance.now()
+  });
+  $('credcenter').style.transitionDuration = showTitles ? '1000ms' : '800ms';
   $('credcenter').style.opacity = showTitles ? '1' : '0';
   const showCredits = playing && v.hover !== false && (app.manualCredits || v.time - v.offset < Math.max(0, 25 + Number(v.hoverDelay ?? -5)));
   $('left-hover').hidden = !showCredits;
-  const curtain = !app.started || app.paused || app.blocked || !app.videoVisible;
+  const curtain = !app.started || app.paused || app.blocked || app.state === 0 || (app.loading && app.state !== 1);
   document.querySelector('.toggleplayer').style.display = curtain ? '' : 'none';
   const upcoming = !!v.upcoming && upcomingNotice.visible({
     slot: slotKey(v), remaining: v.time - v.offset, playing,
@@ -357,31 +340,15 @@ function createPlayer() {
           app.blocked = false;
           spinner(false);
           event.target.getIframe().blur();
-          if (!app.videoVisible) {
-            // Keep the original opaque station curtain over the brief YouTube play/pause feedback.
-            clearTimeout(app.revealTimer);
-            app.revealTimer = setTimeout(() => {
-              if (app.state === 1 && !app.paused && !app.blocked) {
-                app.videoVisible = true;
-                updateOverlays();
-              }
-            }, 1000);
-          }
+          // Restore the original behavior: remove splash immediately on PLAYING.
+          $('video-foreground').style.opacity = '1';
         }
-        if (event.data === 3) {
-          app.videoVisible = false;
-          clearTimeout(app.revealTimer);
-          spinner(true);
-        }
+        if (event.data === 3) spinner(true);
         if (event.data === 2 && app.started && !app.loading && !app.paused) {
           // The browser or user may pause the embedded media independently.
           app.paused = true;
-          app.videoVisible = false;
-          clearTimeout(app.revealTimer);
         }
         if (event.data === 0 && app.started && !app.paused) {
-          app.videoVisible = false;
-          clearTimeout(app.revealTimer);
           spinner(false);
           // Never reload an ended clip in a loop when catalog duration is too long.
           app.skippedSlot = app.current && slotKey(app.current);
@@ -459,7 +426,6 @@ function bind() {
   action('itsatvSmallUI-Back', previousChannel);
   action('itsatvSmallUI-Next', nextChannel);
   action('itsatvSmallUI-Play', togglePlay);
-  action('itsatvSmallUI-Like', () => toggleFavorite());
   action('itsatvSmallUI-Search', showSearch);
   $('search-form').addEventListener('submit', event => {
     event.preventDefault();
@@ -469,7 +435,7 @@ function bind() {
   });
   $('myInput').addEventListener('input', renderSearch);
   $('myInput').setAttribute('aria-label', 'Search songs');
-  const iconLabels = { 'itsatvSmallUI-Back': 'Previous channel', 'itsatvSmallUI-Play': 'Play or pause', 'itsatvSmallUI-Next': 'Next channel', 'itsatvSmallUI-Like': 'Favorite', 'itsatvSmallUI-Search': 'Search songs', mutelink: 'Mute or unmute', fulllink: 'Fullscreen', nextlink: 'Next channel', controllink: 'Control panel', lineuplink: 'Lineup' };
+  const iconLabels = { 'itsatvSmallUI-Back': 'Previous channel', 'itsatvSmallUI-Play': 'Play or pause', 'itsatvSmallUI-Next': 'Next channel', 'itsatvSmallUI-Search': 'Search songs', mutelink: 'Mute or unmute', fulllink: 'Fullscreen', nextlink: 'Next channel', controllink: 'Control panel', lineuplink: 'Lineup' };
   Object.entries(iconLabels).forEach(([id, label]) => all(`[data-original-id="${id}"]`).forEach(el => el.setAttribute('aria-label', label)));
   all('.chbox').forEach(input => {
     input.checked = !!app.options[input.value];
@@ -480,13 +446,11 @@ function bind() {
     });
   });
   document.addEventListener('click', event => {
-    const target = event.target.closest('[data-channel], [data-song], [data-favorite], [data-show-favorites], [data-show-credits], [data-hide-lineup]');
+    const target = event.target.closest('[data-channel], [data-song], [data-show-credits], [data-hide-lineup]');
     if (!target) return;
     event.preventDefault();
     if (target.hasAttribute('data-channel')) changeChannel(Number(target.dataset.channel));
     if (target.dataset.song) selectVideo(target.dataset.song);
-    if (target.dataset.favorite) toggleFavorite(target.dataset.favorite);
-    if (target.hasAttribute('data-show-favorites')) showFavorites();
     if (target.hasAttribute('data-show-credits')) showCredits();
     if (target.hasAttribute('data-hide-lineup')) UIkit.modal('#lineup').hide();
   });
@@ -498,7 +462,7 @@ function bind() {
       arrowright: nextChannel, arrowleft: previousChannel, ' ': togglePlay,
       arrowdown: () => showMenu(), l: () => UIkit.modal('#lineup').toggle(),
       f: () => event.ctrlKey ? showSearch() : fullscreen(), x: () => { if (event.ctrlKey) showSearch(); },
-      m: mute, a: () => toggleFavorite(), s: syncNow, t: () => { about(); UIkit.modal('#modal-full').show(); },
+      m: mute, s: syncNow, t: () => { about(); UIkit.modal('#modal-full').show(); },
       u: status
     };
     if (handlers[key]) { event.preventDefault(); handlers[key](); }
@@ -511,7 +475,7 @@ function bind() {
     hideTooltips();
   }, true);
   for (const event of ['shown', 'hidden']) document.addEventListener(event, syncPanels, true);
-    addEventListener('resize', updateOverlays);
+  addEventListener('resize', updateOverlays);
   let lastVisible = performance.now();
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { lastVisible = performance.now(); return; }
