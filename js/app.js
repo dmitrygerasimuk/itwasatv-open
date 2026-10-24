@@ -84,6 +84,7 @@ function paint() {
   $('lineupBW').classList.toggle('hoverbw', !!app.options.itForceBW);
   const fill = black ? '#111' : '#eee';
   $('logo').setAttribute('fill', fill);
+  $('speaker').classList.toggle('inverted', black);
 }
 function updateVolume() {
   if (app.ready) {
@@ -91,7 +92,10 @@ function updateVolume() {
     if (app.muted || app.volume === 0) app.player.mute(); else app.player.unMute();
   }
   all('input[type="range"]').forEach(input => { input.value = app.volume; });
-  all('[data-original-id="mutelink"]').forEach(el => { el.style.opacity = app.muted || app.volume === 0 ? '.5' : '1'; });
+  const muted = app.muted || app.volume === 0;
+  all('[data-original-id="mutelink"]').forEach(el => { el.style.opacity = muted ? '.5' : '1'; });
+  $('speaker').classList.toggle('mute', muted);
+  $('speaker').setAttribute('aria-pressed', String(muted));
 }
 function changeVolume(value) {
   app.volume = Math.max(0, Math.min(100, Number(value)));
@@ -186,7 +190,7 @@ function renderTrack() {
   $('credcenter').innerHTML = `${escape(v.title)}<h5 class="credcenteryear">${v.year >= 1950 ? escape(v.year) : ''}</h5>`;
   const query = encodeURIComponent(v.title);
   $('cred').innerHTML = `
-    <a id="acredinfo" class="uk-margin-small-right uk-light" href="#"><span class="fa-1and5x"><i class="fas fa-bars fa-fw"></i></span></a>
+    <a id="acredinfo" class="uk-margin-medium-right uk-light" href="#"><span class="fa-1and5x"><i class="fas fa-bars fa-fw"></i></span></a>
     <div id="dropsocial" class="uk-background-secondary uk-light" uk-dropdown="pos:top-center; mode:hover,click; delay-hide:1000;">
       <ul class="uk-nav uk-dropdown-nav">
         <li class="uk-nav-header">FIND THIS SONG</li>
@@ -253,6 +257,8 @@ function updateOverlays() {
   $('credcenter').style.opacity = showTitles ? '1' : '0';
   const showCredits = playing && v.hover !== false && (app.manualCredits || v.time - v.offset < Math.max(0, 25 + Number(v.hoverDelay ?? -5)));
   $('left-hover').hidden = !showCredits;
+  document.body.classList.toggle('credits-open', showCredits);
+  $('speaker').hidden = !app.started;
   const curtain = !app.started || app.paused || app.blocked || app.state === 0 || (app.loading && app.state !== 1);
   document.querySelector('.toggleplayer').style.display = curtain ? '' : 'none';
   const upcoming = !!v.upcoming && upcomingNotice.visible({
@@ -327,6 +333,8 @@ function createPlayer() {
       onReady(event) {
         clearTimeout(app.apiTimeout);
         app.ready = true;
+        app.blocked = false;
+        app.apiLoading = false;
         event.target.getIframe().setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
         event.target.getIframe().setAttribute('allow', 'autoplay; encrypted-media; fullscreen; picture-in-picture');
         event.target.getIframe().setAttribute('tabindex', '-1');
@@ -387,15 +395,23 @@ function loadYouTube() {
   script.src = 'https://www.youtube.com/iframe_api';
   script.id = 'youtube-api';
   script.onerror = () => {
+    clearTimeout(app.apiTimeout);
     app.apiLoading = false;
+    app.loading = false;
+    app.blocked = true;
     script.remove();
     spinner(false);
+    updateOverlays();
     message('Cannot reach YouTube. Press PLAY to retry.', 15000);
   };
   document.head.appendChild(script);
   app.apiTimeout = setTimeout(() => {
     if (!app.ready) {
+      app.loading = false;
+      app.blocked = true;
+      if (!window.YT?.Player) { app.apiLoading = false; script.remove(); }
       spinner(false);
+      updateOverlays();
       message('YouTube is taking too long to respond. Check your connection and press PLAY.', 15000);
     }
   }, 20000);
@@ -418,6 +434,9 @@ Object.assign(window, {
 function bind() {
   const action = (id, fn) => all(`[data-original-id="${id}"]`).forEach(el => el.addEventListener('click', event => { event.preventDefault(); hideTooltips(); fn(); el.blur(); }));
   action('mutelink', mute);
+  action('speaker', mute);
+  action('lineuplink', () => UIkit.modal('#lineup').toggle());
+  action('controllink', () => UIkit.offcanvas('#offcanvas-flip').toggle());
   action('fulllink', fullscreen);
   action('nextlink', nextChannel);
   action('hidelink', () => showMenu(false));

@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { Schedule, selectChannel, shuffle } from '../js/schedule.js';
+import { Schedule, selectChannel, shuffle, channelNames } from '../js/schedule.js';
 import { parseEpoch, SyncedClock } from '../js/clock.js';
 const catalog = JSON.parse(await readFile(new URL('../data/videos.json', import.meta.url)));
 const epoch = Date.parse('2026-10-24T12:00:00Z') / 1000;
 const tiny = [{ id: 'aaaaaaaaaaa', time: 10 }, { id: 'bbbbbbbbbbb', time: 20 }];
 
-test('all 843 videos survive migration with valid metadata', () => {
-  assert.equal(catalog.length, 843);
+test('all 854 videos from the final catalog have valid metadata', () => {
+  assert.equal(catalog.length, 854);
   assert.equal(new Set(catalog.map(v => v.id)).size, catalog.length);
   assert(catalog.every(v => /^[\w-]{11}$/.test(v.id) && Number.isInteger(v.time) && v.time > 0));
 });
@@ -41,6 +41,21 @@ test('daily shuffle resets on UTC midnight without corrupting the catalog', () =
   assert.notDeepEqual(first, second);
   assert.equal(JSON.stringify(catalog), before);
   assert.deepEqual(shuffle(tiny, 'seed'), shuffle(tiny, 'seed'));
+});
+test('FRESH selects releases from 2023 onward on channel 12', () => {
+  const entries = [{ year: 2022 }, { year: 2023 }, { year: 2025 }, {}, { year: 1997 }];
+  assert.deepEqual(selectChannel(entries, 11, epoch), [entries[1], entries[2]]);
+  assert.equal(channelNames[11], 'FRESH');
+  assert.equal(selectChannel(catalog, 11, epoch).length, 6);
+  assert(selectChannel(catalog, 11, epoch).every(v => v.year >= 2023));
+});
+test('final catalog preserves corrected lengths, removals and new releases', () => {
+  const byId = new Map(catalog.map(v => [v.id, v]));
+  assert.equal(catalog.at(-1).id, 'Rml7EpipZ8s');
+  assert.equal(catalog.find(v => v.title === 'Liam Gallagher — Wall Of Glass').time, 230);
+  assert.equal(catalog.find(v => v.title === 'Sailor & I — Tough Love').time, 227);
+  for (const removed of ['Ooq23i-QGBM', 'T_aiaYkcSDo', '0OmtRTqeW2s']) assert(!byId.has(removed));
+  assert(catalog.every((v, i) => v.key === i && v.allkey === i));
 });
 test('genre case bug and unknown-year classic bug are fixed', () => {
   const hiphop = selectChannel(catalog, 7, epoch);

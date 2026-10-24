@@ -2,7 +2,7 @@
 export const channelNames = [
   'Main', 'Rock // Indie', 'Pop // Indie', 'Electronic // Pop',
   'Ambient // Chill', 'ITSATV 2018', 'Classic 1967-2008', 'Hip-Hop',
-  'Funk // Soul // RNB', '>100M Views', '<100K Views'
+  'Funk // Soul // RNB', '>100M Views', '<100K Views', 'FRESH'
 ];
 export const modulo = (n, d) => ((n % d) + d) % d;
 export const utcDay = epoch => new Date(epoch * 1000).toISOString().slice(0, 10);
@@ -44,6 +44,7 @@ export function selectChannel(videos, channel, epoch) {
     case 8: return genre(['rnb', 'jazz', 'soul', 'funk'], ['rock', 'pop']);
     case 9: return videos.filter(v => v.views > 100000000);
     case 10: return videos.filter(v => v.views < 100000);
+    case 11: return videos.filter(v => Number(v.year) >= 2023);
     case 18: return videos.filter(v => v.black === true);
     default: return [...videos];
   }

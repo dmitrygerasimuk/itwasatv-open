@@ -66,3 +66,26 @@
 .status-toast:focus-visible { outline: 1px solid #eee; outline-offset: 2px; }
 /* Keep the genre + channel label a single hit area across its line break. */
 #ajaxLineup thead a { display: inline-block; }
+
+/* Selected visual updates from the final ITSATV 0.16.0 source (July 2025).
+   Keep the original crop rules; scope the credits zoom so it always resets. */
+.green-outline {
+  border: 2px solid rgba(0, 152, 184, .71);
+  color: rgba(0, 152, 184, .71);
+  background: transparent;
+  transition: .2s ease-in-out;
+}
+#speaker { position: absolute; z-index: 99; color: #eee; }
+#speaker span { background: #eee; }
+#speaker span::after { border-color: transparent #e0dede transparent transparent; }
+#speaker span::before { border-color: #c5c5c5; }
+#speaker.inverted { color: #111; }
+#speaker.inverted span { background: #111; }
+#speaker.inverted span::after { border-color: transparent #111 transparent transparent; }
+#speaker.inverted span::before { border-color: #444; }
+.reverseme { color: #eee; }
+.video-black-ui .reverseme { color: #111; }
+#itsatv-hdIcon { pointer-events: none; max-width: calc(100vw - 32px); text-align: center; }
+.credits-open #video-background { filter: blur(15px) brightness(.7); transform: scale(1.1); }
+.credits-open .yt-cover { width: max(100%, 2920px); }
+.credits-open #ajaxLineup { filter: blur(4px) brightness(.5); }
