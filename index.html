@@ -1,1 +1,574 @@
-Hello there
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="Independent 24/7 music television. ITSATV, running entirely in your browser.">
+  <title>ITSATV.live — independent 24/7 music television</title>
+  <link rel="icon" href="./favicon.ico">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="stylesheet" href="./libs/normalize.min.css">
+  <link rel="stylesheet" href="./libs/uikit/3.0.0-rc19/uikit.min.css">
+  <link rel="stylesheet" href="./itsatv.css">
+  <link rel="stylesheet" href="./standalone.css">
+  <script defer src="./libs/fontawesome-5.0.13-all.js"></script>
+  <script defer src="./libs/uikit/3.0.0-rc19/uikit.min.js"></script>
+  <script defer src="./libs/uikit/3.0.0-rc19/uikit-icons.min.js"></script>
+  <script defer src="./libs/uikit/uikit-fa-icons.min.js"></script>
+  <script defer src="./deps/bundle/shuffle-text.js"></script>
+  <script type="module" src="./js/app.js"></script>
+</head>
+<body class="uk-light uk-background-secondary">
+
+  <div id="video-background" data-original-id="video-background" class="video-background" autofocus>
+    <div id="video-foreground" data-original-id="video-foreground" class="video-foreground ">
+
+      <div class="yt-cover">
+        <div class="overlay">
+        <div id="player" data-original-id="player">
+</div>
+      </div>
+    </div>
+
+    </div>
+
+  </div>
+
+<div class="gradientactivity gradientplayer"></div>
+  <div class="toggleplayer">
+
+    <div stid="noiseUI" class=" ">
+
+      <div class="playcenter">
+
+        <a id="play2link" data-original-id="play2link" href="#">
+
+<svg id="svg1" data-original-id="svg1"  xmlns="http://www.w3.org/2000/svg" width="101.000000pt" height="30.000000pt"
+viewBox="20 0 407.000000 122.000000" preserveAspectRatio="xMidYMid meet">
+  <title>
+    Schedule &amp; Location
+  </title>
+  <style>
+    @keyframes flicker {
+      0%    { opacity: 1; }
+      3%    { opacity: 0.4; }
+      6%    { opacity: 1; }
+      7%    { opacity: 0.4; }
+      8%    { opacity: 1; }
+      9%    { opacity: 0.4; }
+      10%   { opacity: 1; }
+      99%   { opacity: 1; }
+      100%  { opacity: 1; }
+    }
+    @keyframes flicker2 {
+        0%    { opacity: 1; }
+        3%    { opacity: 1; }
+        6%    { opacity: 1; }
+        7%    { opacity: 1; }
+        8%    { opacity: 0; }
+        9%    { opacity: 0.3; }
+        10%   { opacity: 1; }
+        99%   { opacity: 1; }
+        100%  { opacity: 1; }
+      }
+
+    #et { animation: flicker 5s infinite 3s step-end; }
+    #L  { animation: flicker 1s infinite step-end; }
+
+    #et2  { animation: flicker2 3s infinite step-end; }
+
+  </style>
+  <defs>
+    <filter id="glow" data-original-id="glow" width="100%" height="100%" x="20" y="2" filterUnits="userSpaceOnUse">
+      <feOffset in="SourceAlpha" result="shadowOffsetOuter1"/>
+      <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="5"/>
+      <feColorMatrix in="shadowBlurOuter1" result="shadowMatrixOuter1" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/>
+      <feOffset dy="1" in="SourceAlpha" result="shadowOffsetOuter2"/>
+      <feGaussianBlur in="shadowOffsetOuter2" result="shadowBlurOuter2" stdDeviation="7"/>
+      <feColorMatrix in="shadowBlurOuter2" result="shadowMatrixOuter2" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0"/>
+      <feOffset dy="2" in="SourceAlpha" result="shadowOffsetOuter3"/>
+      <feGaussianBlur in="shadowOffsetOuter3" result="shadowBlurOuter3" stdDeviation="10"/>
+      <feColorMatrix in="shadowBlurOuter3" result="shadowMatrixOuter3" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.8 0"/>
+      <feOffset dx="2" dy="2" in="SourceAlpha" result="shadowOffsetOuter4"/>
+      <feGaussianBlur in="shadowOffsetOuter4" result="shadowBlurOuter4" stdDeviation="1"/>
+      <feColorMatrix in="shadowBlurOuter4" result="shadowMatrixOuter4" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.69678442 0"/>
+      <feOffset dy="2" in="SourceAlpha" result="shadowOffsetOuter5"/>
+      <feGaussianBlur in="shadowOffsetOuter5" result="shadowBlurOuter5" stdDeviation="8"/>
+      <feColorMatrix in="shadowBlurOuter5" result="shadowMatrixOuter5" values="0 0 0 0 0.314369351 0 0 0 0 0.8883757 0 0 0 0 0.759899616 0 0 0 0.649371603 0"/>
+      <feMerge>
+        <feMergeNode in="shadowMatrixOuter1"/>
+        <feMergeNode in="shadowMatrixOuter2"/>
+        <feMergeNode in="shadowMatrixOuter3"/>
+        <feMergeNode in="shadowMatrixOuter4"/>
+        <feMergeNode in="shadowMatrixOuter5"/>
+      </feMerge>
+    </filter>
+    <path />
+   <path id="path-1" data-original-id="path-1"  d="M1468 900 c-100 -17 -155 -81 -145 -169 8 -74 46 -99 226 -151 86
+-25 121 -54 121 -102 0 -68 -57 -108 -152 -108 -67 0 -116 14 -161 45 -35 23
+-36 23 -42 4 -12 -36 59 -75 159 -90 111 -15 201 22 232 98 18 42 18 67 -2
+109 -21 43 -69 71 -168 96 -89 22 -111 31 -143 61 -34 30 -31 88 5 128 25 28
+35 32 98 36 54 4 81 1 123 -16 30 -11 58 -18 63 -15 30 19 -24 57 -98 69 -22
+4 -46 8 -54 10 -8 1 -36 -1 -62 -5z"/>
+<path id="path-2" data-original-id="path-2" d="M340 615 l0 -285 25 0 25 0 0 285 0 285 -25 0 -25 0 0 -285z"/>
+   <path d="M650 880 c0 -19 7 -20 105 -20 l105 0 0 -265 c0 -258 1 -265 20 -265
+19 0 20 7 20 265 l0 265 105 0 c98 0 105 1 105 20 0 19 -7 20 -230 20 -223 0
+-230 -1 -230 -20z"/>
+<path id="t" data-original-id="t" d="M650 880 c0 -19 7 -20 105 -20 l105 0 0 -265 c0 -258 1 -265 20 -265
+19 0 20 7 20 265 l0 265 105 0 c98 0 105 1 105 20 0 19 -7 20 -230 20 -223 0
+-230 -1 -230 -20z"/>
+<path id="path-3" data-original-id="path-3" d="M2177 873 c-22 -41 -247 -533 -247 -539 0 -2 10 -4 23 -4 21 0 36 28
+140 257 l116 258 48 -105 c27 -58 80 -174 118 -257 60 -132 73 -153 92 -153
+13 0 23 3 23 8 -1 4 -58 131 -128 282 -105 227 -131 276 -149 278 -16 2 -26
+-5 -36 -25z"/>
+<path id="path-4" data-original-id="path-4" d="M2637 893 c-4 -3 -7 -12 -7 -20 0 -10 24 -13 105 -13 l105 0 0 -265
+0 -265 25 0 25 0 0 265 0 265 100 0 c93 0 100 1 100 20 0 19 -7 20 -223 20
+-123 0 -227 -3 -230 -7z"/>
+<path id="path-5" data-original-id="path-5"  d="M3261 893 c0 -5 55 -132 123 -283 109 -244 125 -275 147 -278 22 -2
+32 15 147 275 67 153 122 282 122 286 0 5 -10 7 -21 5 -18 -2 -42 -48 -132
+-251 -61 -136 -114 -244 -118 -240 -4 5 -56 117 -115 251 -96 215 -110 242
+-131 242 -13 0 -23 -3 -22 -7z"/>
+
+  </defs>
+
+  <g   transform="translate(0.000000,122.000000) scale(0.100000,-0.100000)"   fill="none" >
+    <g id="ocation" data-original-id="ocation">
+      <use fill="#000" filter="url(#glow)" xlink:href="#path-1"/>
+      <use fill="#DDD" xlink:href="#path-1"/>
+    </g>
+    <g id="aa" data-original-id="aa">
+      <use fill="#000" filter="url(#glow)" xlink:href="#path-2"/>
+      <use fill="#DDD" xlink:href="#path-2"/>
+    </g>
+    <g id="et" data-original-id="et">
+      <use fill="#000" filter="url(#glow)" xlink:href="#path-3"/>
+      <use fill="#DDD" xlink:href="#path-3"/>
+    </g>
+     <g id="et2" data-original-id="et2">
+      <use fill="#000" filter="url(#glow)" xlink:href="#t"/>
+      <use fill="#DDD" xlink:href="#t"/>
+    </g>
+    <g id="L" data-original-id="L">
+      <use fill="#000" filter="url(#glow)" xlink:href="#path-4"/>
+      <use fill="#FFF" xlink:href="#path-4"/>
+    </g>
+    <g id="S" data-original-id="S">
+      <use fill="#000" filter="url(#glow)" xlink:href="#path-5"/>
+      <use fill="#FFF" xlink:href="#path-5"/>
+    </g>
+  </g>
+</svg>
+
+        </a>
+
+        <p style="bottom: 0;left: 0; text-align:center; " id="debug2" data-original-id="debug2">
+
+            <i class="fas fa-circle-notch fa-1x fa-spin"></i></p>
+
+      </div>
+      <div class="userplay">
+
+        <a id="userplay" data-original-id="userplay" href="#"> </a>
+      </div>
+    </div>
+  </div>
+
+  <div id="itsatvUI-small" data-original-id="itsatvUI-small" class="" style="display:none;">
+
+        <div class="uk-container">
+
+                <div id="itsatvUI-position" data-original-id="itsatvUI-position" class="uk-position-center uk-overlay ">
+
+                    <ul class="uk-grid-small  itsatv-icons  uk-overflow-hidden uk-flex-middle" uk-grid>
+
+                           <li><a id="itsatvSmallUI-Back" data-original-id="itsatvSmallUI-Back" class="uk-icon-button UIicon"   href="javascript:void(0);" uk-icon="icon: fa-step-backward-s; ratio:2;" ></a></li>
+                           <li id="smallUIPlayZone" data-original-id="smallUIPlayZone"><a id="itsatvSmallUI-Play" data-original-id="itsatvSmallUI-Play" class="uk-icon-button UIicon"   href="javascript:void(0);" uk-icon="icon: fa-play-s; ratio:2"></a></li>
+                           <li><a id="itsatvSmallUI-Next" data-original-id="itsatvSmallUI-Next" class="uk-icon-button UIicon"   href="javascript:void(0);" uk-icon="icon: fa-step-forward-s; ratio:2"></a></li>
+                           <li id="smallUILikeZone" data-original-id="smallUILikeZone"><a id="itsatvSmallUI-Like" data-original-id="itsatvSmallUI-Like" class="uk-icon-button UIicon"   href="javascript:void(0);" uk-icon="icon: fa-heart; ratio:2"></a></li>
+
+                          <li><a id="itsatvSmallUI-Search" data-original-id="itsatvSmallUI-Search" class="uk-icon-button UIicon" href="javascript:void(0);" uk-icon="icon: fa-search-s; ratio:2"></a></li>
+                           <li id="mutelink" data-original-id="mutelink" ><a  id="a_mutelink" data-original-id="a_mutelink" class="uk-icon-button UIicon" href="javascript:void(0);" uk-icon="icon: fa-volume-up-s; ratio:2"  > </a></li>
+
+                           <li>  <div id="itsatv-volume-slider" data-original-id="itsatv-volume-slider" class="uk-width-expand@l uk-overflow-hidden uk-background-muted uk-position-relative  UIicon itsatv-volume-slider " style="background-color: rgba(0,0,0,0);  -webkit-app-region: no-drag;" >
+                            <input id="smallVolumeSlider" data-original-id="smallVolumeSlider" class="uk-range UIicon"  style=" -webkit-app-region: no-drag;" type="range" min="0" max="100" step="1"
+                                  oninput="it.changeVolume(this.value)" onchange="it.changeVolume(this.value)">
+                                </div></li>
+
+                       </ul>
+
+                            </div>
+
+        </div>
+
+</div>
+
+  <div id="itsatvUI" data-original-id="itsatvUI" class="UI">
+
+  <div class="vidtop-content" id="vidtop-content" data-original-id="vidtop-content">
+
+    <div class="uk-position-center itsatv-no-select">
+      <div id="spinnerplace" data-original-id="spinnerplace"></div>
+      <div class="credholder">
+      <div  class="credcenter">
+
+        <h1 class="credcenter" style="opacity:0;" id="credcenter" data-original-id="credcenter"></h1>
+
+      </div>
+      </div>
+    </div>
+    <div class="messagebox">
+
+      <p class="uk-text-small" style="opacity:0;" id="messagebox" data-original-id="messagebox"></p>
+
+    </div>
+
+    <div id="parent" data-original-id="parent" >
+
+      <div id="lineupdiv" data-original-id="lineupdiv">
+        <div id="lineup" data-original-id="lineup" class=" uk-modal-full" style="z-index:1010; background-color:rgba(0,0,0,0.0);" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body uk-light" style="color:#fff; background-color:rgba(0,0,0,0.0);">
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <div class="uk-margin-medium-top uk-visible@m">
+
+              <div class="uk-margin-medium-top">
+
+              </div>
+            </div>
+            <div class="uk-margin-medium-top uk-hidden@s"> </div>
+            <div id="lineupBW" data-original-id="lineupBW" >
+                <div id="ajaxLineup" data-original-id="ajaxLineup" class="lineupactivity" ></div>
+
+          </div>
+        </div>
+      </div>
+</div>
+    <div class = "uk-position-large uk-position-center " style="z-index:99" >
+
+      <a href="#" style="display:none;" class="speaker">
+        <span></span>
+      </a>
+
+    </div>
+
+      <div id="left-hover" data-original-id="left-hover" class=" uk-overlay-default uk-position-cover  uk-light    uk-transform-origin-center-left "
+        style="background-color: rgba(0,0,0,0.0); z-index:0;
+   " uk-toggle="animation: uk-animation-slide-left-medium,uk-animation-fade; duration: 850; mode: media; " hidden>
+        <div
+          class="uk-overlay uk-width-100% uk-height-50% uk-position-medium  uk-position-center-left uk-text-uppercase">
+          <div class="ajaxHoverName" id="ajaxHoverName" data-original-id="ajaxHoverName"></div>
+          <div class="ajaxHover" id="ajaxHover" data-original-id="ajaxHover"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="vid-info  uk-transition-toggle">
+
+      <div class="itsatv-logo">
+        <h1><a id="itsatv" data-original-id="itsatv" href="javascript:void(0);" onclick="showMenu();">
+
+            <svg id="my-svg" data-original-id="my-svg" class="svg2 draw"   xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 407.000000 122.000000" preserveAspectRatio="xMidYMid meet" transform="translate(3, 5)"  >
+              <metadata>
+                Created by potrace 1.15, written by Peter Selinger 2001-2017
+              </metadata>
+
+              <g id="logo" data-original-id="logo" transform="translate(0.000000,122.000000) scale(0.100000,-0.100000)" fill="#eee">
+                <path  data-async="" d="M1468 900 c-100 -17 -155 -81 -145 -169 8 -74 46 -99 226 -151 86
+-25 121 -54 121 -102 0 -68 -57 -108 -152 -108 -67 0 -116 14 -161 45 -35 23
+-36 23 -42 4 -12 -36 59 -75 159 -90 111 -15 201 22 232 98 18 42 18 67 -2
+109 -21 43 -69 71 -168 96 -89 22 -111 31 -143 61 -34 30 -31 88 5 128 25 28
+35 32 98 36 54 4 81 1 123 -16 30 -11 58 -18 63 -15 30 19 -24 57 -98 69 -22
+4 -46 8 -54 10 -8 1 -36 -1 -62 -5z" />
+                <path  data-async="" d="M340 615 l0 -285 25 0 25 0 0 285 0 285 -25 0 -25 0 0 -285z" />
+                <path  data-async="" d="M650 880 c0 -19 7 -20 105 -20 l105 0 0 -265 c0 -258 1 -265 20 -265
+19 0 20 7 20 265 l0 265 105 0 c98 0 105 1 105 20 0 19 -7 20 -230 20 -223 0
+-230 -1 -230 -20z" />
+                <path  data-async="" d="M2177 873 c-22 -41 -247 -533 -247 -539 0 -2 10 -4 23 -4 21 0 36 28
+140 257 l116 258 48 -105 c27 -58 80 -174 118 -257 60 -132 73 -153 92 -153
+13 0 23 3 23 8 -1 4 -58 131 -128 282 -105 227 -131 276 -149 278 -16 2 -26
+-5 -36 -25z" />
+                <path  data-async="" d="M2637 893 c-4 -3 -7 -12 -7 -20 0 -10 24 -13 105 -13 l105 0 0 -265
+0 -265 25 0 25 0 0 265 0 265 100 0 c93 0 100 1 100 20 0 19 -7 20 -223 20
+-123 0 -227 -3 -230 -7z" />
+                <path  data-async="" d="M3261 893 c0 -5 55 -132 123 -283 109 -244 125 -275 147 -278 22 -2
+32 15 147 275 67 153 122 282 122 286 0 5 -10 7 -21 5 -18 -2 -42 -48 -132
+-251 -61 -136 -114 -244 -118 -240 -4 5 -56 117 -115 251 -96 215 -110 242
+-131 242 -13 0 -23 -3 -22 -7z" />
+              </g>
+            </svg>
+
+            <span id="likelogo" data-original-id="likelogo"></span>
+
+          </a></h1>
+      </div>
+
+      <div style="display:block; " id="links-show" data-original-id="links-show" class="activity links-show"
+        uk-toggle="animation: uk-animation-slide-top-small; duration: 350; mode: media; " hidden>
+
+        <a  id="mutelink-2" data-original-id="mutelink" href="javascript:void(0);" uk-tooltip="title: Mute/Unmute; pos: left; offset:-35;"><i
+            class="largebtn fas fa-volume-up fa-fw fa-lg"></i></a>
+            <a   id="mutelink-3" data-original-id="mutelink" href="javascript:void(0);" uk-tooltip="title: Mute/Unmute; pos: left; offset:-35;"><i
+            class="smallbtn fas fa-volume-up fa-fw fa"></i></a>
+
+        <a  id="fulllink" data-original-id="fulllink" href="javascript:void(0);" uk-tooltip="title: Fullscreen; pos: left; offset:-35;"><i
+            class="largebtn fas fa-expand fa-fw fa-lg"></i></a>
+            <a id="fulllink-2" data-original-id="fulllink" href="javascript:void(0);" uk-tooltip="title: Fullscreen; pos: left; offset:-35;"><i
+            class="smallbtn fas fa-expand fa-fw"></i></a>
+
+        <a id="nextlink" data-original-id="nextlink" href="javascript:void(0);" uk-tooltip="title: Next Channel; pos: left; offset:-35;"><i
+            class="largebtn fas fa-step-forward fa-fw fa-lg"></i>
+
+        </a>
+        <a id="nextlink-2" data-original-id="nextlink" href="javascript:void(0);" uk-tooltip="title: Next Channel; pos: left; offset:-35;"><i
+            class="smallbtn fas fa-step-forward fa-fw "></i>
+
+        </a>
+
+        <a id="controllink" data-original-id="controllink" href="#offcanvas-flip" uk-toggle
+          uk-tooltip="title: Control Panel; pos: left; offset:-35;"><i class="largebtn fas fa-cog fa-fw fa-lg"></i></a>
+          <a id="controllink-2" data-original-id="controllink" href="#offcanvas-flip" uk-toggle
+          uk-tooltip="title: Control Panel; pos: left; offset:-35;"><i class="smallbtn fas fa-cog fa-fw"></i></a>
+
+        <a id="lineuplink" data-original-id="lineuplink" href="#lineup" uk-toggle uk-tooltip="title: Line-Up; pos: left; offset:-35;"><i
+            class="largebtn far fa-clock fa-fw fa-lg"></i></a>
+
+            <a id="lineuplink-2" data-original-id="lineuplink" href="#lineup" uk-toggle uk-tooltip="title: Line-Up; pos: left; offset:-35;"><i
+            class="smallbtn far fa-clock fa-fw "></i></a>
+
+</span>
+
+        <a style="display:none;" href="#my-id" uk-toggle><i class="fas fa-cog fa-fw fa-lg"></i></a>
+
+        <a id="hidelink" data-original-id="hidelink" href="javascript:void(0);"> <span class="uk-transition-fade"
+            uk-icon="icon:  chevron-up; ratio: 2"></span></a>
+
+      </div>
+
+<a class="uk-transition-fade" id="menu" data-original-id="menu" href="#"><span class="hamburger" style=" "> <span
+    class="uk-transition-fade chevron" uk-icon="icon:  chevron-down; ratio: 2"></span></span></a>
+
+    </div>
+
+    <div class="cred-info "  >
+
+      <p style="z-index:10;" class=" uk-position-medium uk-position-bottom-left findSongActivity uk-transition-toggle uk-link-heading uk-light" id="cred" data-original-id="cred"  tabindex="0"></p>
+
+      <p id="debug" data-original-id="debug"> </p>
+        <p style="opacity:0; font-size: 10px;" id="itsatv-hdIcon" data-original-id="itsatv-hdIcon"> </p>
+
+    </div>
+
+</div>
+
+  </div>
+
+  <div class="uk-offcanvas-content">
+
+    <div id="offcanvas-flip" data-original-id="offcanvas-flip" uk-offcanvas="flip: true; mode: reveal; overlay: false; stack:true;">
+      <div id="just" data-original-id="just" class="uk-offcanvas-bar" style="z-index: 100; background-color:rgba(15,15,15,1);-webkit-app-region: no-drag;color:#fff;" >
+
+            <button class="uk-offcanvas-close" type="button" uk-close></button>
+
+            <h3><i class="fas fa-cog fa-2x"></i></h3>
+
+            <div class="uk-margin-large-top">
+              <div class="uk-grid-small uk-child-width-expand@s uk-text-left"  uk-grid>
+    <div class="uk-width-auto@m">
+    <i id="it-volumeIcon" data-original-id="it-volumeIcon" class="fas fa-volume-up"></i>
+  </div>
+
+    <div class="uk-width-expand@m">
+    <input id="myRange" data-original-id="myRange" class="uk-range"  style=" -webkit-app-region: no-drag;" type="range" min="0" max="100" step="1"
+   oninput="it.changeVolume(this.value)" onchange="it.changeVolume(this.value)">
+ </div>
+  </div>
+
+  <br>
+   <div id="itSettings" data-original-id="itSettings" class="uk-link-heading">
+
+        <label><input id="it-check-showStatus" data-original-id="it-check-showStatus" value="itShowStatus" class="uk-checkbox chbox" type="checkbox">  show status startup</label><br>
+        <label><input id="it-check-forceBW" data-original-id="it-check-forceBW" value="itForceBW" class="uk-checkbox chbox" type="checkbox" >  b&w mode</label><br>
+        <label><input id="it-red-highLight" data-original-id="it-red-highLight" value="itRedHighlight" class="uk-checkbox chbox" type="checkbox" >  highlight current song</label><br>
+        <label><input id="it-showUpcoming" data-original-id="it-showUpcoming" value="itShowUpcoming" class="uk-checkbox chbox" type="checkbox" >  show upcoming</label><br>
+
+   <a    id="playlink" data-original-id="playlink" href="javascript:void(0);">force play</a> <br>
+   <a class="uk-link-heading"  id="stoplink" data-original-id="stoplink" href="javascript:void(0);">pause</a>  <br>
+   <a class="uk-link-heading" href="javascript:void(0);" onclick="ChangeChannel();">change channel</a> <br>
+
+   <a href="#lineup" uk-toggle>lineup</a>  <br>
+
+           <a class="uk-link-heading" id="statuslink" data-original-id="statuslink" href="javascript:void(0);">status</a> <br>
+
+ <a class="uk-link-heading" id="titleslink" data-original-id="titleslink" href="javascript:void(0);" style="display:none;" >titles</a>
+  <a class="uk-link-heading" style=" display:none;" id="debuglink" data-original-id="debuglink" href="javascript:void(0);"  >dbg:on</a>
+  <a class="uk-link-heading" style="display:none; " id="blackandwhitelink" data-original-id="blackandwhitelink" href="javascript:void(0);">black and white</a>
+  <a class="uk-link-heading" id="synclink" data-original-id="synclink" href="javascript:void(0);">sync
+
+</a>  <br>
+
+<a id="aboutlink" data-original-id="aboutlink" onclick="itsatv.changeAboutBox();" href="#modal-full" uk-toggle>about</a>  <br>
+
+   <a target="_blank" href= "https://adblockplus.org" style="display:none;">remove ads</a>
+     <a target="_blank" href= "https://itunes.apple.com/ru/playlist/i-t-s-a-t-v/pl.u-mv7DsYVbE8M?l=en">playlist</a>
+
+ </div>
+   </div>
+
+<div class="uk-margin-small-top">
+
+  <div id="ajaxDiv" data-original-id="ajaxDiv"></div>
+  <div id="ajaxDivMuted" data-original-id="ajaxDivMuted"></div>
+
+ </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="search-modal" data-original-id="search-modal" class= " modal-overflow uk-flex-top modal-back " uk-modal=  "stack:true; bg-close:false;">
+
+            <div class="uk-modal-dialog uk-background-secondary uk-light uk-modal-body uk-width uk-width-3-4@m uk-width-2-3@l uk-width-1-2@xl uk-margin-auto-vertical favs-modal-back">
+
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                 <p id="favs-p" data-original-id="favs-p"></p>
+
+<form autocomplete="off" id="search-form" data-original-id="search-form">
+  <div class="autocomplete" style="">
+    <input class="uk-input uk-form-large" id="myInput" data-original-id="myInput" type="text"   placeholder="Type a song..." autofocus>
+  </div>
+  <input class="uk-input" type="submit" value="Search">
+<div id="search-results" data-original-id="search-results" role="listbox" aria-label="Songs"></div>
+   <div class="uk-margin-small-top"></div>
+</form>
+
+            </div>
+
+</div>
+
+<div id="landing-modal" data-original-id="landing-modal" class="uk-modal-full uk-modal" uk-modal="bg-close:false; esc-close:false;">
+            <div class="uk-modal-dialog uk-flex uk-flex-center uk-flex-middle" uk-height-viewport="" style="min-height: calc(100vh); background-color:rgba(0,0,0,0.7);">
+                <button id="closeLanding" data-original-id="closeLanding" class="uk-modal-close-full uk-close-large uk-close   uk-icon uk-light uk-background-secondary" style="display:none; background-color:rgba(0, 0, 0, 0.0);" type="button" onclick="itsatvPlayer.landing.play();" uk-close=""> </button>
+
+                    <div class="typewriter uk-padding-remove-bottom uk-width-xxlarge uk-padding-large">
+
+                     <h1 class="dmitry-font" id="itsatvWelcome" data-original-id="itsatvWelcome">Welcome to <b>ITSATV.LIVE</b> — 24/7 independent ad-free online live music television</h1>
+
+                    <p uk-margin>
+                        <a id="itsatvDonate" data-original-id="itsatvDonate" class="uk-button uk-button-default uk-button-large" target="_blank" href="https://patreon.com/itsatv"><i class="fab fa-patreon"></i> Support us</a>
+     <button id="itsatvWelcomePlay" data-original-id="itsatvWelcomePlay" class="uk-button uk-button-default uk-button-large" onclick="itsatvPlayer.landing.play(); "> <i class="fas fa-play"></i> PLAY </button>
+     <button id="itsatvWelcomeUnmute" data-original-id="itsatvWelcomeUnmute" class="uk-button uk-button-default uk-button-large" onclick="itsatvPlayer.landing.unMute(); "> <i class="fas fa-volume-up"></i> UNMUTE </button>
+
+     <a style="display:none;" id="itsatvTelegram" data-original-id="itsatvTelegram" class="uk-button uk-button-default uk-button-large" target="_blank" href="https://t-do.ru/itsatv"><i class="fab fa-telegram"></i> Telegram</a>
+
+ </p>
+</div>
+<div class="uk-position-medium uk-position-bottom-center ">
+      <div id="itsatvSocial" data-original-id="itsatvSocial" class="uk-text-center">
+
+               <a href="https://www.facebook.com/itsatv" target="_blank" class="it-social-front uk-icon-button-soc " uk-icon=""> <i class="fab fa-facebook-f fa-1x"></i></a>
+               <a href="https://www.instagram.com/itsatv.live/" target="_blank" class="it-social-front uk-icon-button-soc  " uk-icon=""> <i class="fab fa-instagram fa-1x"></i></a>
+
+      <a href="https://www.producthunt.com/posts/itsatv-live" target="_blank" class="it-social-front uk-icon-button-soc " uk-icon=""><i class="fab fa-product-hunt"></i></a>
+       <a href="mailto:hello@itsatv.live" target="_blank" class="it-social-front uk-icon-button-soc" uk-icon=""> <i class="far fa-envelope fa-1x"></i></a>
+
+       </div>
+</div>
+</div>
+
+</div>
+
+<div id="modal-full" data-original-id="modal-full" class="uk-modal-full" uk-modal>
+    <div class="uk-modal-dialog uk-light uk-background-secondary">
+      <button id="closeAbout" data-original-id="closeAbout" class="uk-modal-close-full uk-close-large uk-light uk-background-secondary" type="button"
+        style=" -webkit-app-region: no-drag; background-color: #1d1f20;" uk-close></button>
+      <div class="uk-grid-collapse uk-child-width-1-2@s  uk-overflow-hidden uk-flex-middle   "
+        style="background-color: #1d1f20;" uk-grid>
+        <div class="uk-overflow-hidden">
+          <div  onclick="itsatv.changeAboutBox();" id="it-aboutPicture" data-original-id="it-aboutPicture" class=" uk-background-cover  "
+
+            style="" uk-height-viewport> </div>
+        </div>
+        <div class="uk-padding-large">
+          <h1 class=""><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="101.000000pt" height="30.000000pt"
+              viewBox="0 0 407.000000 122.000000" preserveAspectRatio="xMidYMid meet" style="margin-left: -10px;">
+              <metadata>
+                Created by potrace 1.15, written by Peter Selinger 2001-2017
+              </metadata>
+              <g transform="translate(0.000000,122.000000) scale(0.100000,-0.100000)" fill="#fff" stroke="none">
+                <path d="M1468 900 c-100 -17 -155 -81 -145 -169 8 -74 46 -99 226 -151 86
+-25 121 -54 121 -102 0 -68 -57 -108 -152 -108 -67 0 -116 14 -161 45 -35 23
+-36 23 -42 4 -12 -36 59 -75 159 -90 111 -15 201 22 232 98 18 42 18 67 -2
+109 -21 43 -69 71 -168 96 -89 22 -111 31 -143 61 -34 30 -31 88 5 128 25 28
+35 32 98 36 54 4 81 1 123 -16 30 -11 58 -18 63 -15 30 19 -24 57 -98 69 -22
+4 -46 8 -54 10 -8 1 -36 -1 -62 -5z" />
+                <path d="M340 615 l0 -285 25 0 25 0 0 285 0 285 -25 0 -25 0 0 -285z" />
+                <path d="M650 880 c0 -19 7 -20 105 -20 l105 0 0 -265 c0 -258 1 -265 20 -265
+19 0 20 7 20 265 l0 265 105 0 c98 0 105 1 105 20 0 19 -7 20 -230 20 -223 0
+-230 -1 -230 -20z" />
+                <path d="M2177 873 c-22 -41 -247 -533 -247 -539 0 -2 10 -4 23 -4 21 0 36 28
+140 257 l116 258 48 -105 c27 -58 80 -174 118 -257 60 -132 73 -153 92 -153
+13 0 23 3 23 8 -1 4 -58 131 -128 282 -105 227 -131 276 -149 278 -16 2 -26
+-5 -36 -25z" />
+                <path d="M2637 893 c-4 -3 -7 -12 -7 -20 0 -10 24 -13 105 -13 l105 0 0 -265
+0 -265 25 0 25 0 0 265 0 265 100 0 c93 0 100 1 100 20 0 19 -7 20 -223 20
+-123 0 -227 -3 -230 -7z" />
+                <path d="M3261 893 c0 -5 55 -132 123 -283 109 -244 125 -275 147 -278 22 -2
+32 15 147 275 67 153 122 282 122 286 0 5 -10 7 -21 5 -18 -2 -42 -48 -132
+-251 -61 -136 -114 -244 -118 -240 -4 5 -56 117 -115 251 -96 215 -110 242
+-131 242 -13 0 -23 -3 -22 -7z" />
+              </g>
+            </svg></h1>
+
+          <p id="itsatvCredits" data-original-id="itsatvCredits">assembled by <a target="_blank" href="http://www.gerasimuk.net/">Dmitry Gerasimuk</a> in 2018
+        <br>
+
+            Contributors:
+            <a href="#" loc="Митек Неклюдов"  >Mitek Nekludov</a>,
+            <a href="#" loc="Олег Кириченко" >Oleg Kirichenko</a>,
+            <a href="https://vimeo.com/blindcam" loc="Сергей Чуев" target="_blank">Sergey Chuev</a>,
+            <a href="https://www.instagram.com/onemorechew/" loc="Юлия Чуева" target="_blank">Yulia Chueva</a>,
+            <a href="#" loc="Елисей Гладников" >Elisey Gladnikov</a>,
+            <a href="http://kistkin.ru" loc="Алексей Кисткин" target="_blank">Alexey Kistkin</a>,
+            <a href="#"  >Nina Bartolomeu</a>,
+            <a href="#" >Michail Sheglov</a>,
+            <a href="#"  >Andrey Kapetskiy</a>,
+            <a href="#"  >Anna Zaychenko</a>
+            <br>
+        You can help itsatv.live <a href="https://itsatv.live/donate">here</a>
+            <br>
+
+            <div class="uk-text-center">
+
+                    <a href="https://www.facebook.com/itsatv" target="_blank" class="it-social uk-icon-button-soc" uk-icon=""> <i class="fab fa-facebook-f fa-1x"></i></a>
+                    <a href="https://www.instagram.com/dmitrygerasimuk/" target="_blank" class="it-social uk-icon-button-soc  " uk-icon=""> <i class="fab fa-instagram fa-1x"></i></a>
+
+            <a href="https://itsatv.live/donate/" target="_blank" class="it-social uk-icon-button-soc" uk-icon=""><i class="fab fa-patreon fa-1x"></i></a>
+            <a href="https://www.producthunt.com/posts/itsatv-live" target="_blank" class="it-social uk-icon-button-soc " uk-icon=""><i class="fab fa-product-hunt"></i></a>
+            <a href="mailto:hello@itsatv.live" target="_blank" class="it-social uk-icon-button-soc" uk-icon=""> <i class="far fa-envelope fa-1x"></i></a>
+
+            </div>
+
+        </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<div id="favs-modal" class="modal-overflow uk-flex-top modal-back" uk-modal="stack:true;">
+ <div class="uk-modal-dialog uk-background-secondary uk-light uk-modal-body uk-width-3-4@m uk-width-1-2@xl uk-margin-auto-vertical favs-modal-back">
+  <button class="uk-modal-close-default" type="button" uk-close></button>
+  <p>Favorites</p><table class="uk-table uk-table-small uk-table-divider"><tbody id="favs-tab"></tbody></table>
+ </div>
+</div>
+<noscript><p class="uk-position-center">Please enable JavaScript to watch ITSATV.</p></noscript>
+</body>
+</html>
