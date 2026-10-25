@@ -277,11 +277,6 @@ function updateOverlays() {
   });
   $('itsatv-hdIcon').textContent = upcoming ? `Upcoming: ${v.upcoming.title}` : '';
   $('itsatv-hdIcon').style.opacity = upcoming ? '1' : '0';
-  const small = params.has('smallui') || params.has('smallUI') || innerHeight < 360;
-  $('itsatvUI-small').style.display = small && app.started ? '' : 'none';
-  $('itsatvUI').style.display = small && app.started ? 'none' : '';
-  const playIcon = `icon:${app.paused ? 'fa-play-s' : 'fa-pause-s'}; ratio:${innerWidth < 870 ? 1 : 2}`;
-  if ($('itsatvSmallUI-Play').getAttribute('uk-icon') !== playIcon) $('itsatvSmallUI-Play').setAttribute('uk-icon', playIcon);
 }
 function tick() {
   if (!app.schedule) return;
@@ -459,10 +454,6 @@ function bind() {
   action('stoplink', pause);
   action('synclink', () => { clock.sync().then(syncNow); });
   action('statuslink', status);
-  action('itsatvSmallUI-Back', previousChannel);
-  action('itsatvSmallUI-Next', nextChannel);
-  action('itsatvSmallUI-Play', togglePlay);
-  action('itsatvSmallUI-Search', showSearch);
   $('search-form').addEventListener('submit', event => {
     event.preventDefault();
     const query = $('myInput').value.trim().toLocaleLowerCase();
@@ -471,7 +462,7 @@ function bind() {
   });
   $('myInput').addEventListener('input', renderSearch);
   $('myInput').setAttribute('aria-label', 'Search songs');
-  const iconLabels = { 'itsatvSmallUI-Back': 'Previous channel', 'itsatvSmallUI-Play': 'Play or pause', 'itsatvSmallUI-Next': 'Next channel', 'itsatvSmallUI-Search': 'Search songs', mutelink: 'Mute or unmute', fulllink: 'Fullscreen', nextlink: 'Next channel', controllink: 'Control panel', lineuplink: 'Lineup' };
+  const iconLabels = { mutelink: 'Mute or unmute', fulllink: 'Fullscreen', nextlink: 'Next channel', controllink: 'Control panel', lineuplink: 'Lineup' };
   Object.entries(iconLabels).forEach(([id, label]) => all(`[data-original-id="${id}"]`).forEach(el => el.setAttribute('aria-label', label)));
   all('.chbox').forEach(input => {
     input.checked = !!app.options[input.value];

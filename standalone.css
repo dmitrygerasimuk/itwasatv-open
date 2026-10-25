@@ -10,6 +10,13 @@
 #left-hover p { color: inherit; }
 #left-hover .uk-h3 { color: #fff; }
 #links-show > a { margin: 1.8rem auto; }
+/* Keep the regular controls reachable on short windows after removing small UI. */
+@media (max-height: 430px) {
+  .vid-info { top: 0; max-height: 100vh; overflow-y: auto; }
+  .vid-info .itsatv-logo,
+  .vid-info h1 { margin-bottom: 0; }
+  #links-show > a { margin: .5rem auto; }
+}
 .video-black-ui .vid-info,
 .video-black-ui .vid-info a,
 .video-black-ui .cred-info,
