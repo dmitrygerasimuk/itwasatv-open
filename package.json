@@ -1,6 +1,6 @@
 {
   "name": "itwasatv-open",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": true,
   "type": "module",
   "description": "ITSATV standalone — no backend, no build step",

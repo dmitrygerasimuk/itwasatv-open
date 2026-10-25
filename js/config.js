@@ -1,5 +1,5 @@
 export const config = Object.freeze({
-  version: '0.1.8',
+  version: '0.1.9',
   maxChannel: 20,
   syncTolerance: 4,
   videoRevealDelayMs: 500,
