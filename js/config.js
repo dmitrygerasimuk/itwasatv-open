@@ -1,7 +1,8 @@
 export const config = Object.freeze({
-  version: '0.1.5',
+  version: '0.1.6',
   maxChannel: 20,
   syncTolerance: 4,
+  videoRevealDelayMs: 500,
   clockRefreshMs: 15 * 60 * 1000,
   clockTimeoutMs: 4000,
   // Public demo key from the original ITSATV. Used only by the optional CLI checker.

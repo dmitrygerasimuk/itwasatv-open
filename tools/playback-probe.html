@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>ITSATV playback comparison</title>
+  <link rel="stylesheet" href="../itsatv.css">
+  <style>
+    body { margin: 0; color: white; background: #111; font: 13px system-ui, sans-serif; }
+    #video-foreground { opacity: 0; }
+    #curtain { position: fixed; inset: 0; background: #111; z-index: 100; }
+    .probe { position: fixed; top: 12px; left: 12px; z-index: 200; max-width: min(440px, calc(100vw - 48px)); padding: 12px; background: #111e; border: 1px solid #777; }
+    .probe label { display: block; margin-bottom: 6px; }
+    .probe button { margin: 6px 4px 6px 0; }
+    #trace { max-height: 160px; overflow: auto; font-size: 11px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div id="video-background" class="video-background"><div id="video-foreground" class="video-foreground"><div class="yt-cover"><div id="player"></div></div></div></div>
+  <div id="curtain"></div>
+  <section class="probe">
+    <form method="get">
+      <label>Video <input name="video" id="video" pattern="[A-Za-z0-9_-]{11}" required></label>
+      <label>Commands <select name="mode" id="mode"><option value="cue-load">cue → load (0.1.5)</option><option value="load">load only (0.1.6)</option><option value="cue-play">cue → play</option></select></label>
+      <label>Delay after PLAYING <select name="delay" id="delay"><option value="0">0 ms</option><option value="500">500 ms</option></select></label>
+      <button type="submit">Prepare comparison</button>
+    </form>
+    <button id="start" disabled>PLAY / RESUME</button><button id="pause" disabled>PAUSE</button><button id="sync" disabled>SYNC</button>
+    <div id="state" role="status">Loading YouTube…</div>
+    <pre id="trace" aria-label="Player command and event trace"></pre>
+  </section>
+  <script type="module">
+    import { tunePlayback, VideoReveal } from '../js/playback.js';
+    const params = new URLSearchParams(location.search);
+    const videoId = /^[\w-]{11}$/.test(params.get('video') || '') ? params.get('video') : 'b9tAs669m20';
+    const mode = ['cue-load', 'load', 'cue-play'].includes(params.get('mode')) ? params.get('mode') : 'cue-load';
+    const delay = params.get('delay') === '500' ? 500 : 0;
+    for (const [id, value] of Object.entries({ video: videoId, mode, delay })) document.getElementById(id).value = value;
+    const begun = performance.now(), lines = [];
+    function trace(text) {
+      lines.push(`${(performance.now() - begun).toFixed(0).padStart(6)} ms  ${text}`);
+      document.getElementById('trace').textContent = lines.slice(-40).reverse().join('\n');
+    }
+    let player;
+    const session = { ready: false, started: false, paused: false, blocked: false, skippedSlot: null, loadedSlot: null, loading: false, state: -1 };
+    const video = { id: videoId, offset: 30 };
+    const gate = new VideoReveal(() => {
+      if (session.state !== 1) { gate.conceal(); return; }
+      document.getElementById('curtain').hidden = true;
+      document.getElementById('video-foreground').style.opacity = '1';
+      trace('REVEAL picture');
+    }, delay);
+    function conceal() {
+      gate.conceal();
+      document.getElementById('curtain').hidden = false;
+      document.getElementById('video-foreground').style.opacity = '0';
+    }
+    function command(name, ...args) {
+      trace(`${name}(${args.map(value => JSON.stringify(value)).join(', ')})`);
+      return player[name](...args);
+    }
+    document.getElementById('start').onclick = () => {
+      trace('USER PLAY');
+      const resume = session.paused;
+      session.started = true;
+      session.paused = false;
+      if (mode === 'load') tunePlayback(session, resume ? { ...video, offset: player.getCurrentTime() } : video, 'test-slot', { resume, sync: true }, conceal);
+      else {
+        conceal();
+        session.loading = true;
+        if (mode === 'cue-load') command('loadVideoById', { videoId, startSeconds: 30 });
+        else command('playVideo');
+      }
+    };
+    document.getElementById('pause').onclick = () => { session.paused = true; conceal(); command('pauseVideo'); };
+    document.getElementById('sync').onclick = () => {
+      if (mode === 'load') tunePlayback(session, video, 'test-slot', { sync: true }, conceal);
+      else { conceal(); session.loading = true; command('loadVideoById', { videoId, startSeconds: 30 }); }
+    };
+    window.onYouTubeIframeAPIReady = () => {
+      player = new YT.Player('player', {
+        host: 'https://www.youtube-nocookie.com', width: '100%', height: '100%',
+        playerVars: { autoplay: 0, controls: 0, playsinline: 1, disablekb: 1, rel: 0, iv_load_policy: 3, cc_load_policy: 0, enablejsapi: 1, origin: location.origin },
+        events: {
+          onReady() {
+            session.ready = true;
+            session.player = {
+              loadVideoById: (...args) => command('loadVideoById', ...args),
+              playVideo: () => command('playVideo'),
+              seekTo: (...args) => command('seekTo', ...args),
+              getCurrentTime: () => player.getCurrentTime()
+            };
+            player.getIframe().setAttribute('tabindex', '-1');
+            player.getIframe().setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+            player.mute();
+            trace(`READY ${mode}; reveal delay ${delay} ms; muted`);
+            if (mode !== 'load') command('cueVideoById', { videoId, startSeconds: 30 });
+            for (const id of ['start', 'pause', 'sync']) document.getElementById(id).disabled = false;
+            document.getElementById('state').textContent = 'READY — click PLAY';
+          },
+          onStateChange(event) {
+            session.state = event.data;
+            const name = ({ '-1': 'UNSTARTED', 0: 'ENDED', 1: 'PLAYING', 2: 'PAUSED', 3: 'BUFFERING', 5: 'CUED' })[event.data];
+            trace(`STATE ${name} @ ${player.getCurrentTime().toFixed(3)} s`);
+            document.getElementById('state').textContent = name;
+            if (event.data === 1) { session.loading = false; gate.playing(); player.getIframe().blur(); }
+            if (event.data === 3) gate.buffering();
+            if (event.data === 2 || event.data === 0) conceal();
+          },
+          onAutoplayBlocked() { session.loading = false; conceal(); trace('AUTOPLAY BLOCKED'); document.getElementById('state').textContent = 'AUTOPLAY BLOCKED'; },
+          onError(event) { session.loading = false; conceal(); trace(`ERROR ${event.data}`); document.getElementById('state').textContent = `ERROR ${event.data}`; }
+        }
+      });
+    };
+    const sdk = document.createElement('script');
+    sdk.src = 'https://www.youtube.com/iframe_api';
+    sdk.onerror = () => { document.getElementById('state').textContent = 'YouTube SDK unavailable — reload to retry'; };
+    document.head.appendChild(sdk);
+  </script>
+</body>
+</html>
