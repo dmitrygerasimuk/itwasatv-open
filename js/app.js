@@ -2,7 +2,7 @@ import { config } from './config.js';
 import { Schedule, channelNames } from './schedule.js';
 import { SyncedClock } from './clock.js';
 import { UpcomingNotice, InitialTitles } from './ui-state.js';
-import { tunePlayback, VideoReveal } from './playback.js';
+import { tunePlayback, setPlaybackVolume, VideoReveal } from './playback.js';
 
 const $ = id => document.getElementById(id);
 const all = selector => [...document.querySelectorAll(selector)];
@@ -24,7 +24,7 @@ const initialChannel = Number.isInteger(requestedChannel) && requestedChannel >=
 const clock = new SyncedClock(config.timeSources, config.clockTimeoutMs);
 const app = {
   channel: initialChannel, schedule: null, videos: [], player: null,
-  ready: false, started: false, paused: false, muted: false, current: null,
+  ready: false, started: false, preview: true, paused: false, muted: false, current: null,
   loadedAt: 0, loadedSlot: null, state: -1, menu: false,
   volume: Math.max(0, Math.min(100, Number(storage.get('volume', 80)) || 0)),
   options: storage.get('options', {}),
@@ -38,7 +38,7 @@ app.options = { itShowStatus: true, itForceBW: false, itRedHighlight: true, itSh
 const upcomingNotice = new UpcomingNotice();
 const initialTitles = new InitialTitles();
 const videoReveal = new VideoReveal(() => {
-  if (!app.started || app.paused || app.blocked || app.loading || app.state !== 1) {
+  if ((!app.started && !app.preview) || app.paused || app.blocked || app.loading || app.state !== 1) {
     videoReveal.conceal();
     return;
   }
@@ -101,10 +101,7 @@ function paint() {
   $('speaker').classList.toggle('inverted', black);
 }
 function updateVolume() {
-  if (app.ready) {
-    app.player.setVolume(app.volume);
-    if (app.muted || app.volume === 0) app.player.mute(); else app.player.unMute();
-  }
+  setPlaybackVolume(app);
   all('input[type="range"]').forEach(input => { input.value = app.volume; });
   const muted = app.muted || app.volume === 0;
   all('[data-original-id="mutelink"]').forEach(el => { el.style.opacity = muted ? '.5' : '1'; });
@@ -120,12 +117,15 @@ function changeVolume(value) {
 function mute() { app.muted = !app.muted; updateVolume(); }
 function start() {
   const resume = app.paused || app.state === 2 || app.state === 5;
-  const retry = app.blocked || (app.loadedSlot !== null && app.skippedSlot === app.loadedSlot);
+  // An already playing fallback must survive dismissal of the welcome screen.
+  const retry = app.blocked || (app.state !== 1 && app.loadedSlot !== null && app.skippedSlot === app.loadedSlot);
   clearMessages();
   hideTooltips();
   app.started = true;
+  app.preview = false;
   app.paused = false;
   app.blocked = false;
+  updateVolume();
   UIkit.modal('#landing-modal').hide();
   showMenu(true);
   if (app.ready && app.schedule) {
@@ -135,6 +135,7 @@ function start() {
     loadYouTube();
     message('Loading player…');
   }
+  updateOverlays();
 }
 function pause() {
   if (!app.ready) return;
@@ -268,7 +269,7 @@ function updateOverlays() {
   $('left-hover').hidden = !showCredits;
   document.body.classList.toggle('credits-open', showCredits);
   $('speaker').hidden = !app.started;
-  const curtain = !app.started || app.paused || app.blocked || !videoReveal.visible;
+  const curtain = app.paused || app.blocked || !videoReveal.visible;
   document.querySelector('.toggleplayer').style.display = curtain ? '' : 'none';
   const upcoming = !!v.upcoming && upcomingNotice.visible({
     slot: slotKey(v), remaining: v.time - v.offset, playing,
@@ -285,7 +286,7 @@ function updateOverlays() {
 function tick() {
   if (!app.schedule) return;
   tune();
-  if (app.ready && app.started && !app.paused && !app.blocked && app.skippedSlot !== slotKey(app.current)) {
+  if (app.ready && (app.started || app.preview) && !app.paused && !app.blocked && app.skippedSlot !== slotKey(app.current)) {
     if (videoReveal.visible && app.state === 1 && performance.now() - app.loadedAt > 5000) {
       const offset = app.player.getCurrentTime();
       if (Number.isFinite(offset) && Math.abs(offset - app.current.offset) > config.syncTolerance) {
@@ -315,7 +316,7 @@ function playerError(event) {
     if (app.skippedSlot === key) { app.blocked = true; return; }
     app.skippedSlot = key;
     if (app.direct) { app.direct = null; tune(); return; }
-    if (!app.started) { message('This video is unavailable here. Press PLAY or change channel.'); return; }
+    if (!app.started && !app.preview) { message('This video is unavailable here. Press PLAY or change channel.'); return; }
     // Preview a playable upcoming clip without changing the station's shared timeline.
     const next = app.current.upcoming;
     message('This video cannot be played here. Showing the next clip until the live schedule resumes.', 10000);
@@ -362,12 +363,12 @@ function createPlayer() {
           spinner(!videoReveal.visible);
         }
         if (event.data === 3) { videoReveal.buffering(); spinner(true); }
-        if (event.data === 2 && app.started && !app.loading && !app.paused) {
+        if (event.data === 2 && (app.started || app.preview) && !app.loading && !app.paused) {
           // The browser or user may pause the embedded media independently.
           app.paused = true;
           concealVideo();
         }
-        if (event.data === 0 && app.started && !app.paused) {
+        if (event.data === 0 && (app.started || app.preview) && !app.paused) {
           concealVideo();
           spinner(false);
           // Never reload an ended clip in a loop when catalog duration is too long.
@@ -439,7 +440,7 @@ function about() { $('it-aboutPicture').style.backgroundImage = "url('./images/t
 Object.assign(window, {
   it: { changeVolume },
   itsatv: { changeAboutBox: about },
-  itsatvPlayer: { landing: { play: start, unMute() { app.muted = false; updateVolume(); start(); } } },
+  itsatvPlayer: { landing: { play: start, unMute() { app.muted = false; start(); } } },
   ChangeChannel: nextChannel, showMenu
 });
 

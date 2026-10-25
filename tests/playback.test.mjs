@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { tunePlayback, VideoReveal } from '../js/playback.js';
+import { tunePlayback, setPlaybackVolume, VideoReveal } from '../js/playback.js';
 
 const clip = { id: 'aaaaaaaaaaa', offset: 30 };
 function session(overrides = {}) {
@@ -18,7 +18,7 @@ function session(overrides = {}) {
   return { state, calls, tune: (options = {}, current = clip, slot = 'slot-a') => tunePlayback(state, current, slot, options) };
 }
 
-test('landing performs no cue or load; first PLAY loads exactly once despite repeated checks and clicks', () => {
+test('disabled preview waits for PLAY, which loads exactly once despite repeated checks and clicks', () => {
   const s = session({ started: false });
   s.tune();
   assert.deepEqual(s.calls, []);
@@ -29,6 +29,53 @@ test('landing performs no cue or load; first PLAY loads exactly once despite rep
   s.state.state = 1;
   for (let i = 0; i < 20; i++) s.tune({ sync: true });
   assert.equal(s.calls.length, 1);
+});
+test('welcome previews live video once; PLAY enables sound without loading or playing it again', () => {
+  const s = session({ started: false, preview: true, volume: 80, muted: false });
+  Object.assign(s.state.player, {
+    setVolume: value => s.calls.push(['volume', value]),
+    mute: () => s.calls.push(['mute']),
+    unMute: () => s.calls.push(['unmute'])
+  });
+  setPlaybackVolume(s.state);
+  for (let i = 0; i < 20; i++) s.tune();
+  assert.deepEqual(s.calls, [['volume', 80], ['mute'], ['load', { videoId: clip.id, startSeconds: 30 }]]);
+  s.state.loading = false;
+  s.state.state = 1;
+  s.state.started = true;
+  s.state.preview = false;
+  setPlaybackVolume(s.state);
+  s.tune({ sync: true });
+  assert.deepEqual(s.calls.slice(3), [['volume', 80], ['unmute']]);
+});
+test('welcome preview follows the next schedule slot without waiting for PLAY', () => {
+  const s = session({ started: false, preview: true });
+  s.tune();
+  s.state.loading = false;
+  s.state.state = 1;
+  s.tune({}, { id: 'bbbbbbbbbbb', offset: 2 }, 'slot-b');
+  s.tune({}, { id: 'bbbbbbbbbbb', offset: 2 }, 'slot-b');
+  assert.deepEqual(s.calls, [
+    ['load', { videoId: clip.id, startSeconds: 30 }],
+    ['load', { videoId: 'bbbbbbbbbbb', startSeconds: 2 }]
+  ]);
+});
+test('starting playback respects mute and zero volume; a blocked preview waits for explicit retry', () => {
+  for (const settings of [{ muted: true, volume: 80 }, { muted: false, volume: 0 }]) {
+    const s = session(settings);
+    s.state.player.setVolume = () => {};
+    s.state.player.mute = () => s.calls.push(['mute']);
+    s.state.player.unMute = () => s.calls.push(['unmute']);
+    setPlaybackVolume(s.state);
+    assert.deepEqual(s.calls, [['mute']]);
+  }
+  const s = session({ started: false, preview: true, blocked: true, loadedSlot: 'slot-a' });
+  for (let i = 0; i < 20; i++) s.tune();
+  assert.deepEqual(s.calls, []);
+  Object.assign(s.state, { started: true, preview: false, blocked: false });
+  s.tune({ retry: true });
+  s.tune({ retry: true });
+  assert.deepEqual(s.calls, [['load', { videoId: clip.id, startSeconds: 30 }]]);
 });
 test('resuming a paused clip plays the existing video without loading or seeking again', () => {
   const s = session({ loadedSlot: 'slot-a', state: 2 });

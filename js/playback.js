@@ -1,7 +1,16 @@
+export function setPlaybackVolume(session) {
+  if (!session.ready) return;
+  session.player.setVolume(session.volume);
+  // The welcome screen previews the live channel silently. Only a user gesture
+  // that dismisses it enables sound, while retaining their mute/volume choice.
+  if (!session.started || session.muted || session.volume === 0) session.player.mute();
+  else session.player.unMute();
+}
+
 // Keep periodic schedule checks and repeated clicks from restarting the player.
 // prepare() conceals the picture before a load or an actual pause/resume.
 export function tunePlayback(session, current, slot, { resume = false, sync = false, retry = false } = {}, prepare = () => {}, tolerance = 4) {
-  if (!session.ready || !session.started || session.paused || session.blocked) return;
+  if (!session.ready || (!session.started && !session.preview) || session.paused || session.blocked) return;
   if (session.skippedSlot === slot && !retry) return;
   if (session.loadedSlot !== slot || (retry && !session.loading)) {
     session.loadedSlot = slot;
